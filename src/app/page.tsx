@@ -1,0 +1,73 @@
+import Link from "next/link";
+import { HomeSearchForm } from "@/components/search/HomeSearchForm";
+
+export default function Home() {
+  return (
+    <>
+      <section className="section-container py-12 md:py-16">
+        <div className="max-w-4xl">
+          <p className="eyebrow">Visakhapatnam aged care discovery</p>
+          <h1 className="mt-3 text-4xl font-bold tracking-normal text-neutral-950 sm:text-5xl">
+            Find trusted aged care support for your family in Vizag.
+          </h1>
+          <p className="mt-5 max-w-3xl text-lg leading-8 text-neutral-700">
+            CareConnect India helps families compare local home care, senior
+            living, day care, physiotherapy, doctor, companion, and dementia
+            care providers in one simple place.
+          </p>
+
+          <HomeSearchForm />
+        </div>
+      </section>
+
+      <section className="border-y border-neutral-200 bg-white py-10">
+        <div className="section-container grid gap-5 md:grid-cols-3">
+          <article>
+            <h2 className="text-lg font-semibold text-neutral-950">
+              Search by need
+            </h2>
+            <p className="mt-3 text-sm leading-6 text-neutral-700">
+              Choose the care service and area that match your family&apos;s
+              situation.
+            </p>
+          </article>
+          <article>
+            <h2 className="text-lg font-semibold text-neutral-950">
+              Compare providers
+            </h2>
+            <p className="mt-3 text-sm leading-6 text-neutral-700">
+              Review services, areas covered, languages, pricing range, and
+              verification status.
+            </p>
+          </article>
+          <article>
+            <h2 className="text-lg font-semibold text-neutral-950">
+              Send an enquiry
+            </h2>
+            <p className="mt-3 text-sm leading-6 text-neutral-700">
+              Submit your contact details and care need. The provider can then
+              contact you directly.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section className="section-container py-10">
+        <div className="flex flex-col gap-4 rounded-lg border border-neutral-200 bg-primary-light p-6 md:flex-row md:items-center md:justify-between">
+          <div>
+            <h2 className="text-xl font-semibold text-primary-dark">
+              Not sure where to start?
+            </h2>
+            <p className="mt-2 text-sm leading-6 text-neutral-700">
+              Browse all active providers and narrow the results when you know
+              the service or location.
+            </p>
+          </div>
+          <Link className="btn-secondary bg-white" href="/search">
+            Browse providers
+          </Link>
+        </div>
+      </section>
+    </>
+  );
+}

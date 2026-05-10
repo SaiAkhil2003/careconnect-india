@@ -1,0 +1,75 @@
+import Link from "next/link";
+import { ProviderRegistrationForm } from "@/components/provider-portal/ProviderRegistrationForm";
+import { ErrorState } from "@/components/ui/ErrorState";
+import type { Provider } from "@/lib/types";
+import {
+  getInternalBaseUrl,
+  getInternalFetchHeaders,
+} from "@/lib/utils/internal-api";
+
+export const dynamic = "force-dynamic";
+
+type ProviderMeResponse =
+  | { success: true; data: { provider: Provider | null } }
+  | { success: false; error: string };
+
+async function getProviderProfile() {
+  try {
+    const response = await fetch(`${getInternalBaseUrl()}/api/provider/me`, {
+      cache: "no-store",
+      headers: getInternalFetchHeaders(),
+    });
+    const result = (await response.json()) as ProviderMeResponse;
+
+    if (!response.ok || !result.success) {
+      return {
+        provider: null,
+        error: result.success ? "Unable to load profile." : result.error,
+      };
+    }
+
+    return { provider: result.data.provider, error: "" };
+  } catch {
+    return { provider: null, error: "Unable to load provider profile." };
+  }
+}
+
+export default async function RegisterProviderPage() {
+  const { provider, error } = await getProviderProfile();
+
+  return (
+    <section className="section-container py-10 md:py-14">
+      <div className="max-w-3xl">
+        <p className="eyebrow">Register provider</p>
+        <h1 className="mt-3 text-3xl font-bold tracking-normal text-neutral-950">
+          Provider registration
+        </h1>
+        <p className="mt-4 text-sm leading-6 text-neutral-700">
+          Submit your provider profile for admin approval. Listings become
+          public only after approval in Supabase Studio.
+        </p>
+      </div>
+
+      <div className="mt-8 max-w-4xl">
+        {error ? (
+          <ErrorState message={error} title="Profile check failed" />
+        ) : provider ? (
+          <div className="card">
+            <h2 className="text-xl font-semibold text-neutral-950">
+              You already have a provider profile.
+            </h2>
+            <p className="mt-3 text-sm leading-6 text-neutral-700">
+              Manage your profile, leads, and analytics from the provider
+              dashboard.
+            </p>
+            <Link className="btn-primary mt-6" href="/dashboard" prefetch={false}>
+              Go to dashboard
+            </Link>
+          </div>
+        ) : (
+          <ProviderRegistrationForm />
+        )}
+      </div>
+    </section>
+  );
+}
