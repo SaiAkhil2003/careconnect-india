@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { ChangeEvent, FormEvent, useState } from "react";
 import {
   LANGUAGES,
   PRICING_RANGES,
@@ -62,12 +62,63 @@ export function ProviderProfileForm({ provider }: ProviderProfileFormProps) {
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [isLogoUploading, setIsLogoUploading] = useState(false);
+  const [logoUploadMessage, setLogoUploadMessage] = useState("");
 
   function updateField(field: keyof FormState, value: string | string[]) {
     setFormState((currentFormState) => ({
       ...currentFormState,
       [field]: value,
     }));
+  }
+
+  function handleLogoFileChange(event: ChangeEvent<HTMLInputElement>) {
+    setLogoFile(event.target.files?.[0] ?? null);
+    setLogoUploadMessage("");
+  }
+
+  async function handleLogoUpload() {
+    if (!logoFile) {
+      setErrorMessage("Select a logo image to upload.");
+      return;
+    }
+
+    setIsLogoUploading(true);
+    setErrorMessage("");
+    setSuccessMessage("");
+    setLogoUploadMessage("");
+
+    try {
+      const formData = new FormData();
+      formData.append("file", logoFile);
+
+      const response = await fetch("/api/provider/logo", {
+        method: "POST",
+        body: formData,
+      });
+      const result = (await response.json()) as {
+        success: boolean;
+        data?: { logo_url: string };
+        error?: string;
+      };
+
+      if (!response.ok || !result.success || !result.data?.logo_url) {
+        throw new Error(result.error ?? "Unable to upload provider logo.");
+      }
+
+      updateField("logo_url", result.data.logo_url);
+      setLogoFile(null);
+      setLogoUploadMessage("Logo uploaded successfully.");
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : "Unable to upload provider logo.",
+      );
+    } finally {
+      setIsLogoUploading(false);
+    }
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -232,15 +283,48 @@ export function ProviderProfileForm({ provider }: ProviderProfileFormProps) {
         />
       </label>
 
-      <label className="block">
-        <span className="text-sm font-medium text-neutral-800">Logo URL</span>
-        <input
-          className="mt-2 w-full rounded-md border border-neutral-300 px-3 py-2 text-sm text-neutral-950 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary-light"
-          onChange={(event) => updateField("logo_url", event.target.value)}
-          type="url"
-          value={formState.logo_url}
-        />
-      </label>
+      <section className="rounded-md border border-neutral-200 bg-neutral-50 p-4">
+        <h2 className="text-sm font-semibold text-neutral-950">
+          Upload provider logo
+        </h2>
+        <p className="mt-2 text-sm leading-6 text-neutral-700">
+          Public logo display is available on Standard and Premium listings.
+        </p>
+        {formState.logo_url ? (
+          <div className="mt-4 flex items-center gap-4">
+            <div
+              aria-label={`${formState.provider_name || "Provider"} logo`}
+              className="h-16 w-16 rounded-md border border-neutral-200 bg-white bg-cover bg-center"
+              role="img"
+              style={{ backgroundImage: `url("${formState.logo_url}")` }}
+            />
+            <p className="break-all text-xs text-neutral-600">
+              {formState.logo_url}
+            </p>
+          </div>
+        ) : null}
+        {logoUploadMessage ? (
+          <p className="mt-3 text-sm font-medium text-primary-dark">
+            {logoUploadMessage}
+          </p>
+        ) : null}
+        <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center">
+          <input
+            accept="image/png,image/jpeg,image/webp"
+            className="w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-950 file:mr-4 file:rounded-md file:border-0 file:bg-primary-light file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-primary-dark"
+            onChange={handleLogoFileChange}
+            type="file"
+          />
+          <button
+            className="btn-secondary shrink-0 disabled:cursor-not-allowed disabled:opacity-60"
+            disabled={isLogoUploading || !logoFile}
+            onClick={handleLogoUpload}
+            type="button"
+          >
+            {isLogoUploading ? "Uploading..." : "Upload logo"}
+          </button>
+        </div>
+      </section>
 
       <label className="block">
         <span className="text-sm font-medium text-neutral-800">Address</span>

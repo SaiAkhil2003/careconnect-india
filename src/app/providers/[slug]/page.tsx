@@ -1,9 +1,11 @@
 import Link from "next/link";
 import { headers } from "next/headers";
+import type { Metadata } from "next";
 import { EnquiryForm } from "@/components/enquiries/EnquiryForm";
 import { PricingBadge } from "@/components/providers/PricingBadge";
 import { VerifiedBadge } from "@/components/providers/VerifiedBadge";
 import { ErrorState } from "@/components/ui/ErrorState";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { Provider } from "@/lib/types";
 import {
   formatListingTier,
@@ -30,6 +32,9 @@ type ProviderProfileApiResponse =
       success: false;
       error: string;
     };
+
+const providerDescriptionFallback =
+  "View aged care provider services, areas covered, languages, and enquiry details on CareConnect India.";
 
 function getBaseUrl() {
   const requestHeaders = headers();
@@ -82,6 +87,56 @@ async function getProvider(slug: string) {
       notFound: false,
     };
   }
+}
+
+async function getProviderForMetadata(slug: string) {
+  try {
+    const supabase = createSupabaseServerClient();
+    const { data: provider } = await supabase
+      .from("providers")
+      .select("provider_name, description")
+      .eq("slug", slug)
+      .eq("is_active", true)
+      .maybeSingle();
+
+    return provider;
+  } catch {
+    return null;
+  }
+}
+
+export async function generateMetadata({
+  params,
+}: ProviderPageProps): Promise<Metadata> {
+  const provider = await getProviderForMetadata(params.slug);
+
+  if (!provider) {
+    return {
+      title: {
+        absolute: "Provider Not Found | CareConnect India",
+      },
+      description: "This provider is not available or is no longer active.",
+      robots: {
+        index: false,
+        follow: false,
+      },
+    };
+  }
+
+  const description =
+    provider.description?.trim() || providerDescriptionFallback;
+
+  return {
+    title: {
+      absolute: `${provider.provider_name} | CareConnect India`,
+    },
+    description,
+    openGraph: {
+      title: `${provider.provider_name} | CareConnect India`,
+      description,
+      type: "website",
+    },
+  };
 }
 
 function DetailItem({
@@ -150,6 +205,11 @@ export default async function ProviderPage({ params }: ProviderPageProps) {
     );
   }
 
+  const canShowLogo =
+    Boolean(provider.logo_url) &&
+    (provider.listing_tier === "standard" ||
+      provider.listing_tier === "premium");
+
   return (
     <section className="section-container py-10 md:py-14">
       <Link
@@ -163,16 +223,29 @@ export default async function ProviderPage({ params }: ProviderPageProps) {
         <div className="space-y-6">
           <section className="card">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-              <div>
-                <div className="flex flex-wrap items-center gap-2">
-                  <h1 className="text-3xl font-bold tracking-normal text-neutral-950">
-                    {provider.provider_name}
-                  </h1>
-                  <VerifiedBadge isVerified={provider.is_verified} />
+              <div className="flex min-w-0 gap-4">
+                {canShowLogo ? (
+                  <div
+                    aria-label={`${provider.provider_name} logo`}
+                    className="h-16 w-16 shrink-0 rounded-md border border-neutral-200 bg-white bg-cover bg-center"
+                    role="img"
+                    style={{ backgroundImage: `url("${provider.logo_url}")` }}
+                  />
+                ) : null}
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h1 className="text-3xl font-bold tracking-normal text-neutral-950">
+                      {provider.provider_name}
+                    </h1>
+                    <VerifiedBadge
+                      isVerified={provider.is_verified}
+                      listingTier={provider.listing_tier}
+                    />
+                  </div>
+                  <p className="mt-3 text-sm font-medium text-primary-dark">
+                    {formatListingTier(provider.listing_tier)} listing
+                  </p>
                 </div>
-                <p className="mt-3 text-sm font-medium text-primary-dark">
-                  {formatListingTier(provider.listing_tier)} listing
-                </p>
               </div>
               <PricingBadge value={provider.pricing_range} />
             </div>

@@ -1,4 +1,11 @@
+import type { Metadata } from "next";
 import { PlaceholderPage } from "@/components/ui/PlaceholderPage";
+
+export const metadata: Metadata = {
+  title: "About",
+  description:
+    "Learn about CareConnect India, an MVP aged care services aggregator for Visakhapatnam.",
+};
 
 export default function AboutPage() {
   return (

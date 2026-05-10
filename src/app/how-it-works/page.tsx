@@ -1,4 +1,11 @@
+import type { Metadata } from "next";
 import { PlaceholderPage } from "@/components/ui/PlaceholderPage";
+
+export const metadata: Metadata = {
+  title: "How It Works",
+  description:
+    "How families search for aged care providers and providers manage profiles on CareConnect India.",
+};
 
 export default function HowItWorksPage() {
   return (

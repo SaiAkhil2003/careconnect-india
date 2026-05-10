@@ -1,9 +1,6 @@
 import Link from "next/link";
 import type { Provider } from "@/lib/types";
-import {
-  formatArrayPreview,
-  formatServiceType,
-} from "@/lib/utils/format";
+import { formatArrayPreview, formatServiceType } from "@/lib/utils/format";
 import { PricingBadge } from "@/components/providers/PricingBadge";
 import { VerifiedBadge } from "@/components/providers/VerifiedBadge";
 
@@ -25,6 +22,10 @@ function getPlacementLabel(provider: Provider) {
 
 export function ProviderCard({ provider }: ProviderCardProps) {
   const isPremium = provider.listing_tier === "premium";
+  const canShowLogo =
+    Boolean(provider.logo_url) &&
+    (provider.listing_tier === "standard" ||
+      provider.listing_tier === "premium");
 
   return (
     <article
@@ -33,22 +34,35 @@ export function ProviderCard({ provider }: ProviderCardProps) {
       }
     >
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <div className="flex flex-wrap items-center gap-2">
-            <h2 className="text-xl font-semibold text-neutral-950">
-              {provider.provider_name}
-            </h2>
-            <VerifiedBadge isVerified={provider.is_verified} />
+        <div className="flex min-w-0 gap-4">
+          {canShowLogo ? (
+            <div
+              aria-label={`${provider.provider_name} logo`}
+              className="h-14 w-14 shrink-0 rounded-md border border-neutral-200 bg-white bg-cover bg-center"
+              role="img"
+              style={{ backgroundImage: `url("${provider.logo_url}")` }}
+            />
+          ) : null}
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <h2 className="text-xl font-semibold text-neutral-950">
+                {provider.provider_name}
+              </h2>
+              <VerifiedBadge
+                isVerified={provider.is_verified}
+                listingTier={provider.listing_tier}
+              />
+            </div>
+            <p
+              className={
+                isPremium
+                  ? "mt-2 text-sm font-medium text-secondary-dark"
+                  : "mt-2 text-sm font-medium text-primary-dark"
+              }
+            >
+              {getPlacementLabel(provider)}
+            </p>
           </div>
-          <p
-            className={
-              isPremium
-                ? "mt-2 text-sm font-medium text-secondary-dark"
-                : "mt-2 text-sm font-medium text-primary-dark"
-            }
-          >
-            {getPlacementLabel(provider)}
-          </p>
         </div>
 
         <PricingBadge value={provider.pricing_range} />

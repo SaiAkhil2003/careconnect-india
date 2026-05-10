@@ -34,7 +34,7 @@ export function ProviderAnalyticsSummary({
       </div>
 
       {dailyRows.length > 0 ? (
-        <div className="overflow-hidden rounded-lg border border-neutral-200 bg-white">
+        <div className="overflow-x-auto rounded-lg border border-neutral-200 bg-white">
           <table className="w-full min-w-[520px] text-left text-sm">
             <thead className="bg-neutral-50 text-neutral-700">
               <tr>

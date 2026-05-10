@@ -82,6 +82,7 @@ export async function GET(request: NextRequest) {
     const area = searchParams.get("area")?.trim();
     const language = searchParams.get("language")?.trim();
     const tier = searchParams.get("tier")?.trim();
+    const verified = searchParams.get("verified") === "true";
     const page = getPositiveInteger(searchParams.get("page"), 1);
     const limit = Math.min(getPositiveInteger(searchParams.get("limit"), 10), 50);
     const from = (page - 1) * limit;
@@ -124,6 +125,10 @@ export async function GET(request: NextRequest) {
 
     if (tier) {
       query = query.eq("listing_tier", tier as ListingTier);
+    }
+
+    if (verified) {
+      query = query.eq("is_verified", true);
     }
 
     const { data, error, count } = await query;

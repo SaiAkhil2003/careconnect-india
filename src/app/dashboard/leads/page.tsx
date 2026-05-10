@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { ProviderLeadList } from "@/components/provider-portal/ProviderLeadList";
 import { ErrorState } from "@/components/ui/ErrorState";
 import type { Enquiry, Provider } from "@/lib/types";
@@ -8,6 +9,14 @@ import {
 } from "@/lib/utils/internal-api";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "Provider Leads",
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 type ProviderLeadsResponse =
   | { success: true; data: { provider: Provider | null; leads: Enquiry[] } }

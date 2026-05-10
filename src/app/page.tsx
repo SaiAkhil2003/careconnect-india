@@ -1,5 +1,18 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { HomeSearchForm } from "@/components/search/HomeSearchForm";
+
+export const metadata: Metadata = {
+  title: "Find Aged Care Providers in Visakhapatnam",
+  description:
+    "Search local home care, senior living, day care, physiotherapy, doctor, companion, and dementia care providers in Visakhapatnam.",
+  openGraph: {
+    title: "CareConnect India",
+    description:
+      "Find and contact aged care providers in Visakhapatnam with CareConnect India.",
+    type: "website",
+  },
+};
 
 export default function Home() {
   return (

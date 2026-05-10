@@ -1,9 +1,21 @@
+import type { ListingTier } from "@/lib/types";
+
 type VerifiedBadgeProps = {
   isVerified: boolean | null;
+  listingTier: ListingTier | null;
 };
 
-export function VerifiedBadge({ isVerified }: VerifiedBadgeProps) {
-  if (!isVerified) {
+export function canDisplayVerifiedBadge({
+  isVerified,
+  listingTier,
+}: VerifiedBadgeProps) {
+  return Boolean(
+    isVerified && (listingTier === "standard" || listingTier === "premium"),
+  );
+}
+
+export function VerifiedBadge({ isVerified, listingTier }: VerifiedBadgeProps) {
+  if (!canDisplayVerifiedBadge({ isVerified, listingTier })) {
     return null;
   }
 

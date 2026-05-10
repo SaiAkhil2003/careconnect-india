@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { BillingClient } from "@/components/provider-portal/BillingClient";
 import { ErrorState } from "@/components/ui/ErrorState";
 import type { Provider } from "@/lib/types";
@@ -8,6 +9,14 @@ import {
 } from "@/lib/utils/internal-api";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "Provider Billing",
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 type DashboardBillingPageProps = {
   searchParams?: Record<string, string | string[] | undefined>;

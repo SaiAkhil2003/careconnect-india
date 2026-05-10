@@ -14,6 +14,12 @@ import {
 
 export const dynamic = "force-dynamic";
 
+export const metadata = {
+  title: "Search Aged Care Providers",
+  description:
+    "Search and filter aged care providers in Visakhapatnam by service, area, language, verified status, and listing tier.",
+};
+
 type SearchPageProps = {
   searchParams?: Record<string, string | string[] | undefined>;
 };
@@ -63,6 +69,7 @@ function getFilters(searchParams: SearchPageProps["searchParams"]) {
     area: getSearchParamValue(searchParams?.area) ?? "",
     language: getSearchParamValue(searchParams?.language) ?? "",
     tier: getSearchParamValue(searchParams?.tier) ?? "",
+    verified: getSearchParamValue(searchParams?.verified) === "true" ? "true" : "",
     page: getSearchParamValue(searchParams?.page) ?? "1",
   };
 }
@@ -84,6 +91,10 @@ function buildApiQuery(filters: ReturnType<typeof getFilters>) {
 
   if (filters.tier) {
     query.set("tier", filters.tier);
+  }
+
+  if (filters.verified === "true") {
+    query.set("verified", "true");
   }
 
   if (filters.page) {
@@ -143,6 +154,7 @@ function AppliedFilters({ filters }: { filters: ReturnType<typeof getFilters> })
     filters.area,
     filters.language,
     filters.tier ? `${formatListingTier(filters.tier as ListingTier)} tier` : "",
+    filters.verified === "true" ? "Verified providers" : "",
   ].filter(Boolean);
 
   if (appliedFilters.length === 0) {
@@ -175,6 +187,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
     area: filters.area,
     language: filters.language,
     tier: filters.tier,
+    verified: filters.verified,
   };
 
   return (

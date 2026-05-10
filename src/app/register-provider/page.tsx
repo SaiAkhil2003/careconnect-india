@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { ProviderRegistrationForm } from "@/components/provider-portal/ProviderRegistrationForm";
 import { ErrorState } from "@/components/ui/ErrorState";
 import type { Provider } from "@/lib/types";
@@ -8,6 +9,14 @@ import {
 } from "@/lib/utils/internal-api";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "Register Provider",
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 type ProviderMeResponse =
   | { success: true; data: { provider: Provider | null } }
@@ -62,9 +71,18 @@ export default async function RegisterProviderPage() {
               Manage your profile, leads, and analytics from the provider
               dashboard.
             </p>
-            <Link className="btn-primary mt-6" href="/dashboard" prefetch={false}>
-              Go to dashboard
-            </Link>
+            <div className="mt-6 flex flex-wrap gap-3">
+              <Link className="btn-primary" href="/dashboard" prefetch={false}>
+                Go to dashboard
+              </Link>
+              <Link
+                className="btn-secondary"
+                href="/dashboard/billing"
+                prefetch={false}
+              >
+                Manage billing
+              </Link>
+            </div>
           </div>
         ) : (
           <ProviderRegistrationForm />

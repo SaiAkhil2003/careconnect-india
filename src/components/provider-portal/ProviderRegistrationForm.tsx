@@ -113,11 +113,22 @@ export function ProviderRegistrationForm() {
           Provider profile submitted successfully.
         </h2>
         <p className="mt-3 text-sm leading-6 text-neutral-700">
-          It will become public after admin approval.
+          It will become public after admin approval. Your profile is submitted
+          on the Free plan. You can upgrade to Standard or Premium from Billing
+          after registration.
         </p>
-        <Link className="btn-primary mt-6" href="/dashboard" prefetch={false}>
-          Go to dashboard
-        </Link>
+        <div className="mt-6 flex flex-wrap gap-3">
+          <Link className="btn-primary" href="/dashboard" prefetch={false}>
+            Go to dashboard
+          </Link>
+          <Link
+            className="btn-secondary"
+            href="/dashboard/billing"
+            prefetch={false}
+          >
+            Manage billing
+          </Link>
+        </div>
       </div>
     );
   }

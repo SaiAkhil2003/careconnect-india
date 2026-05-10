@@ -11,6 +11,7 @@ export type ProviderFilterValues = {
   area?: string;
   language?: string;
   tier?: string;
+  verified?: string;
 };
 
 type ProviderFiltersProps = {
@@ -22,7 +23,10 @@ export function ProviderFilters({ filters }: ProviderFiltersProps) {
     <aside className="card">
       <div className="flex items-center justify-between gap-3">
         <h2 className="text-lg font-semibold text-neutral-950">Filters</h2>
-        <Link className="text-sm font-semibold text-primary hover:text-primary-dark" href="/search">
+        <Link
+          className="text-sm font-semibold text-primary hover:text-primary-dark"
+          href="/search"
+        >
           Clear
         </Link>
       </div>
@@ -94,6 +98,19 @@ export function ProviderFilters({ filters }: ProviderFiltersProps) {
               </option>
             ))}
           </select>
+        </label>
+
+        <label className="flex items-start gap-3 rounded-md border border-neutral-200 bg-neutral-50 p-3">
+          <input
+            className="mt-1 h-4 w-4 rounded border-neutral-300 text-primary focus:ring-primary"
+            defaultChecked={filters.verified === "true"}
+            name="verified"
+            type="checkbox"
+            value="true"
+          />
+          <span className="text-sm font-medium text-neutral-800">
+            Verified providers only
+          </span>
         </label>
 
         <button className="btn-primary w-full" type="submit">

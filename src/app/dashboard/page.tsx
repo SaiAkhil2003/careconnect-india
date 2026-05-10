@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { ProviderAnalyticsSummary } from "@/components/provider-portal/ProviderAnalyticsSummary";
 import { ProviderLeadList } from "@/components/provider-portal/ProviderLeadList";
 import { ProviderStatusCard } from "@/components/provider-portal/ProviderStatusCard";
@@ -12,6 +13,14 @@ import {
 } from "@/lib/utils/internal-api";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "Provider Dashboard",
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 type ProviderMeResponse =
   | { success: true; data: { provider: Provider | null } }
