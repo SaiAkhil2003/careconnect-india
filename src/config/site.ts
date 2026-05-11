@@ -1,7 +1,7 @@
 export const siteConfig = {
   name: "CareConnect India",
   description: "Aged Care Services Aggregator",
-  launchMarket: "Visakhapatnam",
+  coverage: "India-wide search, verified providers added city by city",
   navItems: [
     { label: "Home", href: "/" },
     { label: "Search", href: "/search" },

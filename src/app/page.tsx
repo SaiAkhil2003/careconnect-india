@@ -3,13 +3,13 @@ import type { Metadata } from "next";
 import { HomeSearchForm } from "@/components/search/HomeSearchForm";
 
 export const metadata: Metadata = {
-  title: "Find Aged Care Providers in Visakhapatnam",
+  title: "Find Aged Care Providers Across India",
   description:
-    "Search local home care, senior living, day care, physiotherapy, doctor, companion, and dementia care providers in Visakhapatnam.",
+    "Search home care, senior living, day care, physiotherapy, geriatric doctor, companion, and dementia care providers by city or locality across India.",
   openGraph: {
     title: "CareConnect India",
     description:
-      "Find and contact aged care providers in Visakhapatnam with CareConnect India.",
+      "Find and contact aged care providers across India with CareConnect India.",
     type: "website",
   },
 };
@@ -19,17 +19,22 @@ export default function Home() {
     <>
       <section className="section-container py-8 sm:py-10 md:py-16">
         <div className="max-w-4xl">
-          <p className="eyebrow">Visakhapatnam aged care discovery</p>
+          <p className="eyebrow">India-wide aged care discovery</p>
           <h1 className="mt-3 text-[40px] font-bold leading-tight tracking-normal text-neutral-950 sm:text-5xl lg:text-6xl">
-            Find trusted aged care support for your family in Vizag.
+            Find trusted aged care support across India.
           </h1>
           <p className="mt-4 max-w-3xl text-base leading-7 text-neutral-700 sm:mt-5 sm:text-lg sm:leading-8">
-            CareConnect India helps families compare local home care, senior
-            living, day care, physiotherapy, doctor, companion, and dementia
-            care providers in one simple place.
+            Search home care, senior living, day care, physiotherapy,
+            geriatric doctor, companion, and dementia care providers by city or
+            locality.
           </p>
 
           <HomeSearchForm />
+
+          <p className="mt-4 max-w-3xl text-xs leading-5 text-neutral-600 sm:text-sm">
+            Current provider data includes sample/demo listings for testing.
+            Real provider coverage will expand after verification.
+          </p>
         </div>
       </section>
 
@@ -40,8 +45,8 @@ export default function Home() {
               Search by need
             </h2>
             <p className="mt-3 text-sm leading-6 text-neutral-700">
-              Choose the care service and area that match your family&apos;s
-              situation.
+              Choose the care service and search by city, state, or locality
+              that match your family&apos;s situation.
             </p>
           </article>
           <article>

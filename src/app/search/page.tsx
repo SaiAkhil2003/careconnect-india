@@ -6,6 +6,7 @@ import {
 } from "@/components/providers/ProviderFilters";
 import { ProviderList } from "@/components/providers/ProviderList";
 import { ErrorState } from "@/components/ui/ErrorState";
+import { findSupportedState } from "@/lib/constants";
 import type { ListingTier, Provider, ServiceType } from "@/lib/types";
 import {
   formatListingTier,
@@ -17,7 +18,7 @@ export const dynamic = "force-dynamic";
 export const metadata = {
   title: "Search Aged Care Providers",
   description:
-    "Search and filter aged care providers in Visakhapatnam by service, area, language, verified status, and listing tier.",
+    "Search and filter aged care providers across India by service, location, language, verified status, and listing tier.",
 };
 
 type SearchPageProps = {
@@ -66,6 +67,8 @@ function getBaseUrl() {
 function getFilters(searchParams: SearchPageProps["searchParams"]) {
   return {
     service_type: getSearchParamValue(searchParams?.service_type) ?? "",
+    location: getSearchParamValue(searchParams?.location) ?? "",
+    city: getSearchParamValue(searchParams?.city) ?? "",
     area: getSearchParamValue(searchParams?.area) ?? "",
     language: getSearchParamValue(searchParams?.language) ?? "",
     tier: getSearchParamValue(searchParams?.tier) ?? "",
@@ -79,6 +82,14 @@ function buildApiQuery(filters: ReturnType<typeof getFilters>) {
 
   if (filters.service_type) {
     query.set("service_type", filters.service_type);
+  }
+
+  if (filters.location) {
+    query.set("location", filters.location);
+  }
+
+  if (filters.city) {
+    query.set("city", filters.city);
   }
 
   if (filters.area) {
@@ -102,6 +113,31 @@ function buildApiQuery(filters: ReturnType<typeof getFilters>) {
   }
 
   return query;
+}
+
+function getEffectiveLocation(filters: ReturnType<typeof getFilters>) {
+  return filters.location || filters.city || filters.area;
+}
+
+function formatHeadingService(serviceType: string) {
+  const label = formatServiceType(serviceType as ServiceType);
+
+  return `${label.charAt(0)}${label.slice(1).toLowerCase()}`;
+}
+
+function getSearchHeading(filters: ReturnType<typeof getFilters>) {
+  const location = getEffectiveLocation(filters);
+  const providerLabel = filters.service_type
+    ? `${formatHeadingService(filters.service_type)} providers`
+    : "Aged care providers";
+
+  if (!location) {
+    return `${providerLabel} across India`;
+  }
+
+  const locationPreposition = findSupportedState(location) ? "in" : "near";
+
+  return `${providerLabel} ${locationPreposition} ${location}`;
 }
 
 function buildSearchHref(filters: ReturnType<typeof getFilters>, page: number) {
@@ -147,20 +183,21 @@ async function getProviders(filters: ReturnType<typeof getFilters>) {
 }
 
 function AppliedFilters({ filters }: { filters: ReturnType<typeof getFilters> }) {
+  const location = getEffectiveLocation(filters);
   const appliedFilters = [
     filters.service_type
-      ? formatServiceType(filters.service_type as ServiceType)
+      ? `Service type: ${formatServiceType(filters.service_type as ServiceType)}`
       : "",
-    filters.area,
-    filters.language,
-    filters.tier ? `${formatListingTier(filters.tier as ListingTier)} tier` : "",
+    location ? `Location: ${location}` : "",
+    filters.language ? `Language: ${filters.language}` : "",
+    filters.tier ? `Tier: ${formatListingTier(filters.tier as ListingTier)}` : "",
     filters.verified === "true" ? "Verified providers" : "",
   ].filter(Boolean);
 
   if (appliedFilters.length === 0) {
     return (
       <p className="mt-3 text-sm leading-6 text-neutral-700">
-        Showing all active providers in Visakhapatnam.
+        Showing all active providers across India.
       </p>
     );
   }
@@ -184,7 +221,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   const { providers, pagination, error } = await getProviders(filters);
   const filterValues: ProviderFilterValues = {
     service_type: filters.service_type,
-    area: filters.area,
+    location: getEffectiveLocation(filters),
     language: filters.language,
     tier: filters.tier,
     verified: filters.verified,
@@ -196,9 +233,13 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         <div className="min-w-0">
           <p className="eyebrow">Search providers</p>
           <h1 className="mt-3 text-2xl font-bold leading-tight tracking-normal text-neutral-950 sm:text-3xl">
-            Aged care providers in Visakhapatnam
+            {getSearchHeading(filters)}
           </h1>
           <AppliedFilters filters={filters} />
+          <p className="mt-3 max-w-3xl text-xs leading-5 text-neutral-600 sm:text-sm">
+            Current provider data includes sample/demo listings for testing.
+            Real provider coverage will expand after verification.
+          </p>
         </div>
         <p className="shrink-0 text-sm font-medium text-neutral-700">
           {pagination.total} provider{pagination.total === 1 ? "" : "s"} found

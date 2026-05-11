@@ -2,9 +2,9 @@
 
 ## Project Summary
 
-CareConnect India MVP v1.0 is a Visakhapatnam-focused aged care provider discovery platform. Families can search and contact providers. Providers can register, manage profiles, receive leads, view plan-eligible analytics, and upgrade listing plans. Admin approval and verification remain manual through Supabase Studio.
+CareConnect India MVP v1.1 is an aged care provider discovery platform with India-wide location search. Families can search by state, city, or locality and contact providers. Providers can register, manage profiles, receive leads, view plan-eligible analytics, and upgrade listing plans. Admin approval and verification remain manual through Supabase Studio.
 
-The MVP supports Stripe, Resend, and Twilio WhatsApp foundations, but local integrations can remain unconfigured. Real launch requires production credentials, storage setup, staging QA, and 50+ approved provider listings.
+The MVP supports Stripe, Resend, and Twilio WhatsApp foundations, but local integrations can remain unconfigured. Current data includes sample/demo providers for testing only. Real launch requires production credentials, storage setup, staging QA, and verified provider onboarding with consent city by city.
 
 ## Developer Brief Compliance Matrix
 
@@ -12,7 +12,7 @@ The MVP supports Stripe, Resend, and Twilio WhatsApp foundations, but local inte
 | --- | --- | --- |
 | Families can search providers | Complete | Homepage and `/search` are implemented. |
 | Families can filter by service type | Complete | `service_type` filter is supported. |
-| Families can filter by area/suburb | Complete | `area` filter is supported. |
+| Families can filter by location | Complete | Searchable `location` filter supports state, city, and locality search. Legacy `area` and `city` API filters still work. |
 | Families can filter by languages spoken | Complete | `language` filter is supported. |
 | Families can filter by verified badge | Complete | `verified=true` API and UI filter added. |
 | Families can contact providers | Complete | Enquiry form saves to Supabase. |
@@ -37,7 +37,7 @@ The MVP supports Stripe, Resend, and Twilio WhatsApp foundations, but local inte
 | No reviews or ratings | Complete | Intentionally excluded. |
 | No family accounts | Complete | Intentionally excluded. |
 | No custom admin dashboard | Complete | Intentionally excluded. |
-| No national expansion | Complete | Vizag-focused MVP only. |
+| India-wide location discovery | Complete | Configurable supported state, city, and locality list added. Provider coverage still requires verified onboarding city by city. |
 
 ## Completed Items
 
@@ -60,9 +60,10 @@ Supabase database:
 
 Public search:
 
-- Homepage search
+- Homepage search with searchable location input
 - Search results
-- Filters for service, area, language, verified, and tier
+- Filters for service, location, language, verified, and tier
+- State, city, and locality location suggestions
 - Premium/Standard/Free ordering
 - Empty and error states
 
@@ -128,10 +129,21 @@ Admin via Supabase Studio:
 - Verification through `is_verified`
 - Listing tier can be inspected and corrected manually if required
 
+## India-Wide Search Update
+
+- The platform now supports India-wide location search.
+- Location search supports state, city, and locality values.
+- Supported locations are configurable in `src/lib/constants/locations.ts`.
+- `GET /api/providers?location=` searches provider city and areas covered, with state-to-city matching for supported states.
+- India-wide sample/demo seed data lives in `supabase/seed-india-demo.sql`.
+- Current data includes sample/demo providers only.
+- Sample providers are not real providers and do not represent verified real provider coverage.
+- Real launch requires verified provider onboarding and consent city by city.
+
 ## Remaining Before Real Launch
 
-- Add 50+ real provider records for Visakhapatnam.
-- Verify provider data quality and contact details.
+- Add verified real provider records city by city.
+- Verify provider data quality, consent, and contact details.
 - Create Stripe account, products, prices, and webhook.
 - Add Stripe environment variables in Vercel.
 - Configure Resend API key, sender, and production domain.
@@ -167,7 +179,7 @@ Launch readiness:
 - Rotate Supabase service role key before production.
 - Add all required Vercel environment variables.
 - Create `provider-logos` Supabase Storage bucket with public read.
-- Approve at least 50 real Vizag providers.
+- Approve verified real providers city by city.
 - Set verified badges only for eligible Standard/Premium providers unless founder-approved.
 - Configure Stripe Standard and Premium recurring prices.
 - Configure Stripe webhook endpoint:

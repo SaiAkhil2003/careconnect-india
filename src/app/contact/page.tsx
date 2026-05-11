@@ -4,7 +4,7 @@ import { PlaceholderPage } from "@/components/ui/PlaceholderPage";
 export const metadata: Metadata = {
   title: "Contact",
   description:
-    "Contact CareConnect India for family and provider enquiries about aged care services in Visakhapatnam.",
+    "Contact CareConnect India for family and provider enquiries about aged care services across India.",
 };
 
 export default function ContactPage() {

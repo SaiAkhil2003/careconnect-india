@@ -1,6 +1,6 @@
 # CareConnect India
 
-CareConnect India is an MVP aged care services aggregator for Visakhapatnam. Families can search, filter, compare, and contact aged care providers. Providers can register, manage profiles, view leads, view plan-eligible analytics, and upgrade listing tiers. Admin approval and verified badge management are handled through Supabase Studio for MVP v1.
+CareConnect India is an MVP aged care services aggregator with India-wide location search. Families can search by state, city, or locality, filter, compare, and contact aged care providers. Providers can register, manage profiles, view leads, view plan-eligible analytics, and upgrade listing tiers. Admin approval and verified badge management are handled through Supabase Studio for MVP v1.
 
 GitHub repository:
 
@@ -10,7 +10,15 @@ git@github.com:SaiAkhil2003/careconnect-india.git
 
 ## MVP Purpose
 
-The MVP validates whether families in Vizag can discover trusted aged care providers and submit enquiries, while providers can receive leads and manage a public profile. Real launch still requires 50+ approved Vizag providers and manual founder QA before production rollout.
+The MVP validates whether families can discover aged care providers by location and submit enquiries, while providers can receive leads and manage a public profile. Current provider data includes sample/demo listings only. Real launch requires verified provider onboarding, consent, and manual founder QA city by city before production rollout.
+
+## Location Search
+
+- Public search supports state, city, and locality searches through a configurable supported location list.
+- The current supported list lives in `src/lib/constants/locations.ts`.
+- Sample/demo providers are available only for development and testing.
+- Sample providers are not real providers and do not represent verified real provider coverage.
+- Real India-wide coverage must be added through verified provider onboarding city by city.
 
 ## Tech Stack
 
@@ -26,8 +34,9 @@ The MVP validates whether families in Vizag can discover trusted aged care provi
 
 ## Completed Features
 
-- Public homepage search
-- Search results with service, area, language, verified, and tier filters
+- Public homepage search with searchable location input
+- India-wide state, city, and locality search suggestions
+- Search results with service, location, language, verified, and tier filters
 - Provider cards and SEO-ready provider profile pages
 - Enquiry form and enquiry saving
 - Provider analytics tracking
@@ -158,11 +167,19 @@ npx supabase link --project-ref your-project-ref
 npx supabase db push
 ```
 
-Seed sample providers:
+Seed existing sample providers:
 
 ```bash
 psql "$SUPABASE_DB_URL" -f supabase/seed.sql
 ```
+
+Seed India-wide sample/demo providers for development and testing:
+
+```bash
+psql "$SUPABASE_DB_URL" -f supabase/seed-india-demo.sql
+```
+
+`supabase/seed-india-demo.sql` can also be run manually in the Supabase SQL Editor. This sample data is for development/testing only and does not represent verified real provider coverage.
 
 Tables:
 
@@ -262,14 +279,22 @@ npm run build
 npm run dev
 ```
 
+Run `supabase/seed-india-demo.sql` in the target Supabase database before expecting nonzero results for the new India demo city and locality searches.
+
 Public pages:
 
 - `/`
 - `/search`
-- `/search?service_type=home_care`
-- `/search?area=MVP%20Colony`
-- `/search?verified=true`
-- `/search?service_type=home_care&area=MVP%20Colony&verified=true`
+- `/search?location=Hyderabad`
+- `/search?location=Banjara%20Hills`
+- `/search?location=Telangana`
+- `/search?location=Bengaluru`
+- `/search?location=T%20Nagar`
+- `/search?location=Mumbai`
+- `/search?location=Delhi`
+- `/search?location=Kochi`
+- `/search?service_type=home_care&location=Hyderabad`
+- `/search?verified=true&location=Hyderabad`
 - `/providers/sample-vizag-home-care`
 - `/providers/sai-test-elder-care`
 - `/about`
@@ -293,7 +318,15 @@ Protected pages:
 API checks:
 
 - `GET /api/providers`
+- `GET /api/providers?location=Hyderabad`
+- `GET /api/providers?location=Hyderabad&service_type=home_care`
+- `GET /api/providers?location=Telangana`
+- `GET /api/providers?location=Bengaluru`
+- `GET /api/providers?location=T%20Nagar`
+- `GET /api/providers?location=Mumbai`
+- `GET /api/providers?location=Delhi`
 - `GET /api/providers?verified=true`
+- `GET /api/providers?verified=true&location=Hyderabad`
 - `GET /api/providers/sample-vizag-home-care`
 - `POST /api/enquiries`
 - `POST /api/provider/billing/checkout`
@@ -353,7 +386,10 @@ https://your-vercel-domain/api/webhooks/stripe
 - Stripe is not tested until test or live keys are added.
 - Resend is not tested until an API key and sender email are configured.
 - Twilio WhatsApp is not tested until sandbox or production WhatsApp is configured.
-- Real launch needs 50+ approved Vizag providers.
+- Current data includes sample/demo providers only.
+- Sample providers are not real providers.
+- Real launch requires verified provider onboarding and consent city by city.
+- Supported locations are configurable in `src/lib/constants/locations.ts`.
 - Admin approval is through Supabase Studio.
 - No custom admin dashboard in MVP.
 - Provider logo display requires the `provider-logos` bucket.
@@ -372,7 +408,6 @@ https://your-vercel-domain/api/webhooks/stripe
 - Mobile app
 - Custom admin dashboard
 - Provider staff management
-- National expansion
 
 ## Security Notes
 

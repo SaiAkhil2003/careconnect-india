@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
+  findSupportedState,
+  getSupportedCitiesForState,
   LISTING_TIER_VALUES,
   SERVICE_TYPE_VALUES,
 } from "@/lib/constants";
@@ -44,6 +46,72 @@ function getCreatedAtTime(provider: Provider) {
   return new Date(provider.created_at).getTime();
 }
 
+function normalizeSearchValue(value: string | null | undefined) {
+  return value?.trim().toLowerCase() ?? "";
+}
+
+function equalsSearchValue(
+  value: string | null | undefined,
+  searchValue: string,
+) {
+  return normalizeSearchValue(value) === normalizeSearchValue(searchValue);
+}
+
+function arrayIncludesSearchValue(items: string[] | null, searchValue: string) {
+  return Boolean(
+    items?.some((item) => equalsSearchValue(item, searchValue)),
+  );
+}
+
+function providerMatchesState(provider: Provider, stateValue: string) {
+  const providerWithFutureState = provider as Provider & {
+    state?: string | null;
+  };
+  const stateName = findSupportedState(stateValue);
+
+  if (!stateName) {
+    return false;
+  }
+
+  if (equalsSearchValue(providerWithFutureState.state, stateName)) {
+    return true;
+  }
+
+  const stateCities = getSupportedCitiesForState(stateName);
+
+  return stateCities.some((city) => equalsSearchValue(provider.city, city));
+}
+
+function providerMatchesLocation(provider: Provider, location: string) {
+  const trimmedLocation = location.trim();
+
+  if (!trimmedLocation) {
+    return true;
+  }
+
+  const providerWithFutureState = provider as Provider & {
+    state?: string | null;
+  };
+
+  if (findSupportedState(trimmedLocation)) {
+    return providerMatchesState(provider, trimmedLocation);
+  }
+
+  return (
+    equalsSearchValue(provider.city, trimmedLocation) ||
+    arrayIncludesSearchValue(provider.areas_covered, trimmedLocation) ||
+    equalsSearchValue(providerWithFutureState.state, trimmedLocation)
+  );
+}
+
+function providerMatchesCity(provider: Provider, city: string) {
+  return !city.trim() || equalsSearchValue(provider.city, city);
+}
+
+function providerMatchesArea(provider: Provider, area: string) {
+  return !area.trim() || arrayIncludesSearchValue(provider.areas_covered, area);
+}
+
 function sortProvidersForSearch(providers: Provider[]) {
   return [...providers].sort((firstProvider, secondProvider) => {
     const priorityDifference =
@@ -79,6 +147,8 @@ export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
     const serviceType = searchParams.get("service_type")?.trim();
+    const location = searchParams.get("location")?.trim();
+    const city = searchParams.get("city")?.trim();
     const area = searchParams.get("area")?.trim();
     const language = searchParams.get("language")?.trim();
     const tier = searchParams.get("tier")?.trim();
@@ -108,15 +178,11 @@ export async function GET(request: NextRequest) {
     const supabase = createSupabaseServerClient();
     let query = supabase
       .from("providers")
-      .select("*", { count: "exact" })
+      .select("*")
       .eq("is_active", true);
 
     if (serviceType) {
       query = query.contains("service_types", [serviceType]);
-    }
-
-    if (area) {
-      query = query.contains("areas_covered", [area]);
     }
 
     if (language) {
@@ -131,7 +197,7 @@ export async function GET(request: NextRequest) {
       query = query.eq("is_verified", true);
     }
 
-    const { data, error, count } = await query;
+    const { data, error } = await query;
 
     if (error) {
       return jsonResponse(
@@ -140,9 +206,15 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const sortedProviders = sortProvidersForSearch(data ?? []);
+    const filteredProviders = (data ?? []).filter(
+      (provider) =>
+        providerMatchesLocation(provider, location ?? "") &&
+        providerMatchesCity(provider, city ?? "") &&
+        providerMatchesArea(provider, area ?? ""),
+    );
+    const sortedProviders = sortProvidersForSearch(filteredProviders);
     const paginatedProviders = sortedProviders.slice(from, to + 1);
-    const total = count ?? sortedProviders.length;
+    const total = sortedProviders.length;
 
     return jsonResponse<ProvidersResponse>({
       success: true,

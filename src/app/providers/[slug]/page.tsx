@@ -301,7 +301,7 @@ export default async function ProviderPage({ params }: ProviderPageProps) {
               <DetailItem label="Phone" value={provider.phone} />
               <DetailItem label="Email" value={provider.email} />
               <DetailItem label="Website" value={provider.website_url} />
-              <DetailItem label="Address" value={provider.address_line} />
+              <DetailItem label="Full address" value={provider.address_line} />
               <DetailItem label="City" value={provider.city} />
               <DetailItem
                 label="Pricing range"

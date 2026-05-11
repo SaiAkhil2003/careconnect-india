@@ -4,7 +4,7 @@ import { PlaceholderPage } from "@/components/ui/PlaceholderPage";
 export const metadata: Metadata = {
   title: "About",
   description:
-    "Learn about CareConnect India, an MVP aged care services aggregator for Visakhapatnam.",
+    "Learn about CareConnect India, an MVP aged care services aggregator with India-wide location search.",
 };
 
 export default function AboutPage() {
@@ -12,11 +12,12 @@ export default function AboutPage() {
     <PlaceholderPage
       eyebrow="About"
       title="About CareConnect India"
-      description="CareConnect India is an MVP aged care services aggregator focused on Visakhapatnam."
+      description="CareConnect India is an MVP aged care services aggregator with India-wide location search."
     >
       <p>
-        This page will later explain provider verification and the local launch
-        approach.
+        Current provider data includes sample/demo listings for testing. Real
+        provider coverage will expand after verification and consent city by
+        city.
       </p>
     </PlaceholderPage>
   );

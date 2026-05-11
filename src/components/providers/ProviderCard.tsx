@@ -1,6 +1,10 @@
 import Link from "next/link";
 import type { Provider } from "@/lib/types";
-import { formatArrayPreview, formatServiceType } from "@/lib/utils/format";
+import {
+  formatArrayPreview,
+  formatPricingRangeLabel,
+  formatServiceType,
+} from "@/lib/utils/format";
 import { PricingBadge } from "@/components/providers/PricingBadge";
 import { VerifiedBadge } from "@/components/providers/VerifiedBadge";
 
@@ -76,7 +80,11 @@ export function ProviderCard({ provider }: ProviderCardProps) {
         </p>
       ) : null}
 
-      <div className="mt-5 grid gap-4 text-sm text-neutral-700 md:grid-cols-3">
+      <div className="mt-5 grid gap-4 text-sm text-neutral-700 sm:grid-cols-2 lg:grid-cols-5">
+        <div>
+          <p className="font-semibold text-neutral-950">City</p>
+          <p className="mt-1 leading-6">{provider.city ?? "Not listed"}</p>
+        </div>
         <div>
           <p className="font-semibold text-neutral-950">Services</p>
           <p className="mt-1 leading-6">
@@ -84,7 +92,7 @@ export function ProviderCard({ provider }: ProviderCardProps) {
           </p>
         </div>
         <div>
-          <p className="font-semibold text-neutral-950">Areas</p>
+          <p className="font-semibold text-neutral-950">Areas covered</p>
           <p className="mt-1 leading-6">
             {formatArrayPreview(provider.areas_covered)}
           </p>
@@ -93,6 +101,12 @@ export function ProviderCard({ provider }: ProviderCardProps) {
           <p className="font-semibold text-neutral-950">Languages</p>
           <p className="mt-1 leading-6">
             {formatArrayPreview(provider.languages_spoken)}
+          </p>
+        </div>
+        <div>
+          <p className="font-semibold text-neutral-950">Pricing</p>
+          <p className="mt-1 leading-6">
+            {formatPricingRangeLabel(provider.pricing_range)}
           </p>
         </div>
       </div>

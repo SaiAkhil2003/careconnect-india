@@ -4,6 +4,22 @@ import type {
   ServiceType,
   StaffCountRange,
 } from "@/lib/types";
+import { SUPPORTED_AREAS_BY_CITY } from "@/lib/constants/locations";
+
+export {
+  LOCATION_SUGGESTIONS,
+  SUPPORTED_AREAS_BY_CITY,
+  SUPPORTED_CITIES,
+  SUPPORTED_CITIES_BY_STATE,
+  SUPPORTED_STATES,
+  findSupportedState,
+  getSupportedCitiesForState,
+} from "@/lib/constants/locations";
+export type {
+  LocationSuggestion,
+  LocationSuggestionType,
+  SupportedState,
+} from "@/lib/constants/locations";
 
 export const SERVICE_TYPES = [
   { value: "home_care", label: "Home Care" },
@@ -34,22 +50,16 @@ export const LANGUAGES = [
   "Hindi",
   "Tamil",
   "Odia",
+  "Kannada",
+  "Malayalam",
+  "Marathi",
+  "Bengali",
+  "Gujarati",
+  "Punjabi",
+  "Assamese",
 ] as const;
 
-export const VIZAG_AREAS = [
-  "MVP Colony",
-  "Gajuwaka",
-  "Dwaraka Nagar",
-  "Madhurawada",
-  "Seethammadhara",
-  "Akkayyapalem",
-  "Siripuram",
-  "Rushikonda",
-  "Pendurthi",
-  "NAD",
-  "Bheemili",
-  "Anakapalle",
-] as const;
+export const VIZAG_AREAS = SUPPORTED_AREAS_BY_CITY.Visakhapatnam;
 
 export const LISTING_TIERS = [
   { value: "free", label: "Free" },
