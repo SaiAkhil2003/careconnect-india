@@ -184,7 +184,11 @@ export function EnquiryForm({
         />
       </label>
 
-      <button className="btn-primary w-full" disabled={isSubmitting} type="submit">
+      <button
+        className="btn-primary w-full"
+        disabled={isSubmitting}
+        type="submit"
+      >
         {isSubmitting ? "Submitting..." : "Submit enquiry"}
       </button>
     </form>

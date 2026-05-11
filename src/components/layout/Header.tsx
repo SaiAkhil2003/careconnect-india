@@ -9,20 +9,23 @@ export function Header() {
 
   return (
     <header className="border-b border-neutral-200 bg-white">
-      <div className="section-container flex min-h-16 flex-col gap-3 py-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="section-container flex min-h-16 min-w-0 flex-col items-stretch gap-3 py-3 sm:py-4 md:flex-row md:items-center md:justify-between">
         <Link
-          className="text-lg font-bold tracking-normal text-primary"
+          className="shrink-0 text-lg font-bold tracking-normal text-primary"
           href="/"
         >
           {siteConfig.name}
         </Link>
 
-        <nav aria-label="Primary navigation">
-          <ul className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm font-medium text-neutral-700">
+        <nav
+          aria-label="Primary navigation"
+          className="min-w-0 max-w-full self-stretch md:w-auto md:self-auto"
+        >
+          <ul className="grid w-full min-w-0 max-w-full grid-cols-2 items-center justify-items-start gap-x-2 gap-y-1.5 text-[13px] font-medium text-neutral-700 min-[375px]:grid-cols-3 sm:flex sm:flex-wrap sm:gap-x-4 sm:gap-y-2 sm:text-sm md:justify-end">
             {publicNavItems.map((item) => (
               <li key={item.href}>
                 <Link
-                  className="transition-colors hover:text-primary"
+                  className="inline-flex min-h-8 items-center transition-colors hover:text-primary"
                   href={item.href}
                 >
                   {item.label}
@@ -32,7 +35,7 @@ export function Header() {
             <SignedOut>
               <li>
                 <Link
-                  className="transition-colors hover:text-primary"
+                  className="inline-flex min-h-8 items-center transition-colors hover:text-primary"
                   href="/register-provider"
                   prefetch={false}
                 >
@@ -42,7 +45,7 @@ export function Header() {
               <li>
                 <SignInButton mode="redirect">
                   <button
-                    className="font-semibold text-primary transition-colors hover:text-primary-dark"
+                    className="inline-flex min-h-8 items-center font-semibold text-primary transition-colors hover:text-primary-dark"
                     type="button"
                   >
                     Sign In
@@ -53,7 +56,7 @@ export function Header() {
             <SignedIn>
               <li>
                 <Link
-                  className="transition-colors hover:text-primary"
+                  className="inline-flex min-h-8 items-center transition-colors hover:text-primary"
                   href="/dashboard"
                   prefetch={false}
                 >
@@ -62,7 +65,7 @@ export function Header() {
               </li>
               <li>
                 <Link
-                  className="transition-colors hover:text-primary"
+                  className="inline-flex min-h-8 items-center transition-colors hover:text-primary"
                   href="/register-provider"
                   prefetch={false}
                 >

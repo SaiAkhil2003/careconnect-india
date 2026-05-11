@@ -117,12 +117,16 @@ export function ProviderRegistrationForm() {
           on the Free plan. You can upgrade to Standard or Premium from Billing
           after registration.
         </p>
-        <div className="mt-6 flex flex-wrap gap-3">
-          <Link className="btn-primary" href="/dashboard" prefetch={false}>
+        <div className="mt-6 grid gap-3 sm:flex sm:flex-wrap">
+          <Link
+            className="btn-primary w-full sm:w-auto"
+            href="/dashboard"
+            prefetch={false}
+          >
             Go to dashboard
           </Link>
           <Link
-            className="btn-secondary"
+            className="btn-secondary w-full sm:w-auto"
             href="/dashboard/billing"
             prefetch={false}
           >
@@ -315,7 +319,11 @@ export function ProviderRegistrationForm() {
         </label>
       </div>
 
-      <button className="btn-primary w-full" disabled={isSubmitting} type="submit">
+      <button
+        className="btn-primary w-full"
+        disabled={isSubmitting}
+        type="submit"
+      >
         {isSubmitting ? "Submitting..." : "Submit provider profile"}
       </button>
     </form>

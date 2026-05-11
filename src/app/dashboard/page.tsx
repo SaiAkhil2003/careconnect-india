@@ -110,7 +110,7 @@ export default async function DashboardPage() {
 
   if (error) {
     return (
-      <section className="section-container py-10 md:py-14">
+      <section className="section-container py-8 sm:py-10 md:py-14">
         <ErrorState message={error} title="Dashboard unavailable" />
       </section>
     );
@@ -118,10 +118,10 @@ export default async function DashboardPage() {
 
   if (!provider) {
     return (
-      <section className="section-container py-10 md:py-14">
+      <section className="section-container py-8 sm:py-10 md:py-14">
         <div className="card max-w-3xl">
           <p className="eyebrow">Provider dashboard</p>
-          <h1 className="mt-3 text-3xl font-bold tracking-normal text-neutral-950">
+          <h1 className="mt-3 text-2xl font-bold leading-tight tracking-normal text-neutral-950 sm:text-3xl">
             You have not created a provider profile yet.
           </h1>
           <p className="mt-4 text-sm leading-6 text-neutral-700">
@@ -129,7 +129,7 @@ export default async function DashboardPage() {
             admin approval.
           </p>
           <Link
-            className="btn-primary mt-6"
+            className="btn-primary mt-6 w-full sm:w-auto"
             href="/register-provider"
             prefetch={false}
           >
@@ -145,23 +145,26 @@ export default async function DashboardPage() {
   const totalProfileViews = analytics?.total_profile_views ?? 0;
 
   return (
-    <section className="section-container py-10 md:py-14">
+    <section className="section-container py-8 sm:py-10 md:py-14">
       <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-        <div>
+        <div className="min-w-0">
           <p className="eyebrow">Provider dashboard</p>
-          <h1 className="mt-3 text-3xl font-bold tracking-normal text-neutral-950">
+          <h1 className="mt-3 break-words text-2xl font-bold leading-tight tracking-normal text-neutral-950 sm:text-3xl">
             {provider.provider_name}
           </h1>
         </div>
-        <div className="flex flex-wrap gap-3">
-          <Link className="btn-secondary" href="/dashboard/billing">
+        <div className="grid gap-3 sm:flex sm:flex-wrap md:justify-end">
+          <Link className="btn-secondary w-full sm:w-auto" href="/dashboard/billing">
             Manage billing
           </Link>
-          <Link className="btn-secondary" href="/dashboard/profile">
+          <Link className="btn-secondary w-full sm:w-auto" href="/dashboard/profile">
             Edit profile
           </Link>
           {provider.is_active ? (
-            <Link className="btn-primary" href={`/providers/${provider.slug}`}>
+            <Link
+              className="btn-primary w-full sm:w-auto"
+              href={`/providers/${provider.slug}`}
+            >
               View public profile
             </Link>
           ) : null}
@@ -196,7 +199,10 @@ export default async function DashboardPage() {
                 </span>
               </p>
             </div>
-            <Link className="btn-secondary shrink-0" href="/dashboard/billing">
+            <Link
+              className="btn-secondary w-full shrink-0 sm:w-auto"
+              href="/dashboard/billing"
+            >
               Manage billing
             </Link>
           </div>
@@ -205,7 +211,7 @@ export default async function DashboardPage() {
         <section className="grid gap-4 md:grid-cols-2">
           <article className="card">
             <p className="text-sm font-medium text-neutral-600">Total leads</p>
-            <p className="mt-2 text-3xl font-bold text-neutral-950">
+            <p className="mt-2 text-2xl font-bold text-neutral-950 sm:text-3xl">
               {totalLeads}
             </p>
           </article>
@@ -213,7 +219,7 @@ export default async function DashboardPage() {
             <p className="text-sm font-medium text-neutral-600">
               Total profile views
             </p>
-            <p className="mt-2 text-3xl font-bold text-neutral-950">
+            <p className="mt-2 text-2xl font-bold text-neutral-950 sm:text-3xl">
               {totalProfileViews}
             </p>
           </article>
@@ -277,17 +283,17 @@ export default async function DashboardPage() {
           <h2 className="text-xl font-semibold text-neutral-950">
             Profile actions
           </h2>
-          <div className="mt-5 flex flex-wrap gap-3">
-            <Link className="btn-secondary" href="/dashboard/profile">
+          <div className="mt-5 grid gap-3 sm:flex sm:flex-wrap">
+            <Link className="btn-secondary w-full sm:w-auto" href="/dashboard/profile">
               Edit profile
             </Link>
-            <Link className="btn-secondary" href="/dashboard/leads">
+            <Link className="btn-secondary w-full sm:w-auto" href="/dashboard/leads">
               View leads
             </Link>
-            <Link className="btn-secondary" href="/dashboard/analytics">
+            <Link className="btn-secondary w-full sm:w-auto" href="/dashboard/analytics">
               View analytics
             </Link>
-            <Link className="btn-secondary" href="/dashboard/billing">
+            <Link className="btn-secondary w-full sm:w-auto" href="/dashboard/billing">
               Manage billing
             </Link>
           </div>

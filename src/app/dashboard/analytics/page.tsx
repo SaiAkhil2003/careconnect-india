@@ -83,7 +83,7 @@ export default async function DashboardAnalyticsPage() {
 
   if (profileError) {
     return (
-      <section className="section-container py-10 md:py-14">
+      <section className="section-container py-8 sm:py-10 md:py-14">
         <ErrorState message={profileError} title="Analytics unavailable" />
       </section>
     );
@@ -91,13 +91,13 @@ export default async function DashboardAnalyticsPage() {
 
   if (!provider) {
     return (
-      <section className="section-container py-10 md:py-14">
+      <section className="section-container py-8 sm:py-10 md:py-14">
         <div className="card max-w-3xl">
-          <h1 className="text-3xl font-bold tracking-normal text-neutral-950">
+          <h1 className="text-2xl font-bold leading-tight tracking-normal text-neutral-950 sm:text-3xl">
             Please register your provider profile first.
           </h1>
           <Link
-            className="btn-primary mt-6"
+            className="btn-primary mt-6 w-full sm:w-auto"
             href="/register-provider"
             prefetch={false}
           >
@@ -110,21 +110,21 @@ export default async function DashboardAnalyticsPage() {
 
   if ((provider.listing_tier ?? "free") === "free") {
     return (
-      <section className="section-container py-10 md:py-14">
+      <section className="section-container py-8 sm:py-10 md:py-14">
         <div className="card max-w-3xl">
           <p className="eyebrow">Provider portal</p>
-          <h1 className="mt-3 text-3xl font-bold tracking-normal text-neutral-950">
+          <h1 className="mt-3 text-2xl font-bold leading-tight tracking-normal text-neutral-950 sm:text-3xl">
             Analytics are available on Standard and Premium plans.
           </h1>
           <p className="mt-4 text-sm leading-6 text-neutral-700">
             Your profile views and enquiries are still tracked internally. Upgrade
             to view the detailed analytics dashboard.
           </p>
-          <div className="mt-6 flex flex-wrap gap-3">
-            <Link className="btn-primary" href="/dashboard/billing">
+          <div className="mt-6 grid gap-3 sm:flex sm:flex-wrap">
+            <Link className="btn-primary w-full sm:w-auto" href="/dashboard/billing">
               Manage billing
             </Link>
-            <Link className="btn-secondary" href="/dashboard">
+            <Link className="btn-secondary w-full sm:w-auto" href="/dashboard">
               Back to dashboard
             </Link>
           </div>
@@ -137,25 +137,25 @@ export default async function DashboardAnalyticsPage() {
 
   if (error) {
     return (
-      <section className="section-container py-10 md:py-14">
+      <section className="section-container py-8 sm:py-10 md:py-14">
         <ErrorState message={error} title="Analytics unavailable" />
       </section>
     );
   }
 
   return (
-    <section className="section-container py-10 md:py-14">
+    <section className="section-container py-8 sm:py-10 md:py-14">
       <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
           <p className="eyebrow">Provider portal</p>
-          <h1 className="mt-3 text-3xl font-bold tracking-normal text-neutral-950">
+          <h1 className="mt-3 text-2xl font-bold leading-tight tracking-normal text-neutral-950 sm:text-3xl">
             Analytics
           </h1>
           <p className="mt-4 text-sm leading-6 text-neutral-700">
             Last 30 analytics rows for your provider profile.
           </p>
         </div>
-        <Link className="btn-secondary" href="/dashboard">
+        <Link className="btn-secondary w-full sm:w-auto" href="/dashboard">
           Back to dashboard
         </Link>
       </div>

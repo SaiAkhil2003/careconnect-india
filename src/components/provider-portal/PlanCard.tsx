@@ -29,17 +29,17 @@ export function PlanCard({
     <article className={cardClassName}>
       <div className="flex h-full flex-col">
         <div>
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <h2 className="text-xl font-semibold text-neutral-950">
+          <div className="flex flex-col items-start gap-3 sm:flex-row sm:justify-between">
+            <div className="min-w-0">
+              <h2 className="break-words text-xl font-semibold text-neutral-950">
                 {plan.label}
               </h2>
-              <p className="mt-2 text-2xl font-bold text-neutral-950">
+              <p className="mt-2 break-words text-xl font-bold text-neutral-950 sm:text-2xl">
                 {plan.priceLabel}
               </p>
             </div>
             {isCurrent ? (
-              <span className="rounded-full bg-primary-light px-3 py-1 text-xs font-semibold text-primary-dark">
+              <span className="shrink-0 rounded-full bg-primary-light px-3 py-1 text-xs font-semibold text-primary-dark">
                 Current
               </span>
             ) : null}

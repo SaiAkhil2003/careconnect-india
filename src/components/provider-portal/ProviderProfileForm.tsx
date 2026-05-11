@@ -291,10 +291,10 @@ export function ProviderProfileForm({ provider }: ProviderProfileFormProps) {
           Public logo display is available on Standard and Premium listings.
         </p>
         {formState.logo_url ? (
-          <div className="mt-4 flex items-center gap-4">
+          <div className="mt-4 flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:gap-4">
             <div
               aria-label={`${formState.provider_name || "Provider"} logo`}
-              className="h-16 w-16 rounded-md border border-neutral-200 bg-white bg-cover bg-center"
+              className="h-16 w-16 shrink-0 rounded-md border border-neutral-200 bg-white bg-cover bg-center"
               role="img"
               style={{ backgroundImage: `url("${formState.logo_url}")` }}
             />
@@ -316,7 +316,7 @@ export function ProviderProfileForm({ provider }: ProviderProfileFormProps) {
             type="file"
           />
           <button
-            className="btn-secondary shrink-0 disabled:cursor-not-allowed disabled:opacity-60"
+            className="btn-secondary w-full shrink-0 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
             disabled={isLogoUploading || !logoFile}
             onClick={handleLogoUpload}
             type="button"
@@ -390,7 +390,11 @@ export function ProviderProfileForm({ provider }: ProviderProfileFormProps) {
         </label>
       </div>
 
-      <button className="btn-primary w-full" disabled={isSubmitting} type="submit">
+      <button
+        className="btn-primary w-full"
+        disabled={isSubmitting}
+        type="submit"
+      >
         {isSubmitting ? "Saving..." : "Save profile"}
       </button>
     </form>

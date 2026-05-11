@@ -182,12 +182,12 @@ export default async function ProviderPage({ params }: ProviderPageProps) {
 
   if (notFound) {
     return (
-      <section className="section-container py-12 md:py-16">
+      <section className="section-container py-8 sm:py-10 md:py-16">
         <ErrorState
           message="This provider is not available or is no longer active."
           title="Provider not found"
         />
-        <Link className="btn-primary mt-6" href="/search">
+        <Link className="btn-primary mt-6 w-full sm:w-auto" href="/search">
           Back to search
         </Link>
       </section>
@@ -196,7 +196,7 @@ export default async function ProviderPage({ params }: ProviderPageProps) {
 
   if (error || !provider) {
     return (
-      <section className="section-container py-12 md:py-16">
+      <section className="section-container py-8 sm:py-10 md:py-16">
         <ErrorState
           message="We could not load this provider profile. Please try again."
           title="Profile unavailable"
@@ -211,7 +211,7 @@ export default async function ProviderPage({ params }: ProviderPageProps) {
       provider.listing_tier === "premium");
 
   return (
-    <section className="section-container py-10 md:py-14">
+    <section className="section-container py-8 sm:py-10 md:py-14">
       <Link
         className="text-sm font-semibold text-primary hover:text-primary-dark"
         href="/search"
@@ -223,18 +223,18 @@ export default async function ProviderPage({ params }: ProviderPageProps) {
         <div className="space-y-6">
           <section className="card">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-              <div className="flex min-w-0 gap-4">
+              <div className="flex min-w-0 gap-3 sm:gap-4">
                 {canShowLogo ? (
                   <div
                     aria-label={`${provider.provider_name} logo`}
-                    className="h-16 w-16 shrink-0 rounded-md border border-neutral-200 bg-white bg-cover bg-center"
+                    className="h-14 w-14 shrink-0 rounded-md border border-neutral-200 bg-white bg-cover bg-center sm:h-16 sm:w-16"
                     role="img"
                     style={{ backgroundImage: `url("${provider.logo_url}")` }}
                   />
                 ) : null}
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
-                    <h1 className="text-3xl font-bold tracking-normal text-neutral-950">
+                    <h1 className="break-words text-2xl font-bold leading-tight tracking-normal text-neutral-950 sm:text-3xl">
                       {provider.provider_name}
                     </h1>
                     <VerifiedBadge
@@ -247,7 +247,9 @@ export default async function ProviderPage({ params }: ProviderPageProps) {
                   </p>
                 </div>
               </div>
-              <PricingBadge value={provider.pricing_range} />
+              <div className="self-start">
+                <PricingBadge value={provider.pricing_range} />
+              </div>
             </div>
 
             {provider.description ? (
@@ -255,7 +257,7 @@ export default async function ProviderPage({ params }: ProviderPageProps) {
                 <h2 className="text-lg font-semibold text-neutral-950">
                   Overview
                 </h2>
-                <p className="mt-3 text-sm leading-7 text-neutral-700">
+                <p className="mt-3 break-words text-sm leading-7 text-neutral-700">
                   {provider.description}
                 </p>
               </div>

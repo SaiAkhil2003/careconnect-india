@@ -191,16 +191,16 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   };
 
   return (
-    <section className="section-container py-10 md:py-14">
+    <section className="section-container py-8 sm:py-10 md:py-14">
       <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-        <div>
+        <div className="min-w-0">
           <p className="eyebrow">Search providers</p>
-          <h1 className="mt-3 text-3xl font-bold tracking-normal text-neutral-950">
+          <h1 className="mt-3 text-2xl font-bold leading-tight tracking-normal text-neutral-950 sm:text-3xl">
             Aged care providers in Visakhapatnam
           </h1>
           <AppliedFilters filters={filters} />
         </div>
-        <p className="text-sm font-medium text-neutral-700">
+        <p className="shrink-0 text-sm font-medium text-neutral-700">
           {pagination.total} provider{pagination.total === 1 ? "" : "s"} found
         </p>
       </div>
@@ -221,7 +221,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
           {!error && pagination.total_pages > 1 ? (
             <nav
               aria-label="Provider results pagination"
-              className="flex items-center justify-between gap-3"
+              className="flex flex-wrap items-center justify-between gap-3"
             >
               {pagination.page > 1 ? (
                 <Link

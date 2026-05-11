@@ -8,7 +8,7 @@ export function ErrorState({
   message,
 }: ErrorStateProps) {
   return (
-    <div className="rounded-lg border border-red-200 bg-red-50 p-6">
+    <div className="rounded-lg border border-red-200 bg-red-50 p-4 sm:p-6">
       <h2 className="text-base font-semibold text-red-900">{title}</h2>
       <p className="mt-2 text-sm leading-6 text-red-800">{message}</p>
     </div>

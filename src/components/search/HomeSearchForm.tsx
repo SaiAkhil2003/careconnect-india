@@ -28,7 +28,7 @@ export function HomeSearchForm() {
 
   return (
     <form
-      className="mt-8 grid gap-3 rounded-lg border border-neutral-200 bg-white p-4 shadow-sm md:grid-cols-[1fr_1fr_auto]"
+      className="mt-6 grid gap-4 rounded-lg border border-neutral-200 bg-white p-3 shadow-sm sm:p-4 md:mt-8 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto]"
       onSubmit={handleSubmit}
     >
       <label className="block">
@@ -65,7 +65,7 @@ export function HomeSearchForm() {
         </select>
       </label>
 
-      <button className="btn-primary mt-1 md:mt-7" type="submit">
+      <button className="btn-primary w-full md:mt-7 md:w-auto" type="submit">
         Search
       </button>
     </form>

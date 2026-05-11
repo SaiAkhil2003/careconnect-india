@@ -48,7 +48,7 @@ export default async function DashboardProfilePage() {
 
   if (error) {
     return (
-      <section className="section-container py-10 md:py-14">
+      <section className="section-container py-8 sm:py-10 md:py-14">
         <ErrorState message={error} title="Profile unavailable" />
       </section>
     );
@@ -56,13 +56,13 @@ export default async function DashboardProfilePage() {
 
   if (!provider) {
     return (
-      <section className="section-container py-10 md:py-14">
+      <section className="section-container py-8 sm:py-10 md:py-14">
         <div className="card max-w-3xl">
-          <h1 className="text-3xl font-bold tracking-normal text-neutral-950">
+          <h1 className="text-2xl font-bold leading-tight tracking-normal text-neutral-950 sm:text-3xl">
             Please register your provider profile first.
           </h1>
           <Link
-            className="btn-primary mt-6"
+            className="btn-primary mt-6 w-full sm:w-auto"
             href="/register-provider"
             prefetch={false}
           >
@@ -74,10 +74,10 @@ export default async function DashboardProfilePage() {
   }
 
   return (
-    <section className="section-container py-10 md:py-14">
+    <section className="section-container py-8 sm:py-10 md:py-14">
       <div className="max-w-4xl">
         <p className="eyebrow">Provider portal</p>
-        <h1 className="mt-3 text-3xl font-bold tracking-normal text-neutral-950">
+        <h1 className="mt-3 text-2xl font-bold leading-tight tracking-normal text-neutral-950 sm:text-3xl">
           Edit provider profile
         </h1>
         <p className="mt-4 text-sm leading-6 text-neutral-700">

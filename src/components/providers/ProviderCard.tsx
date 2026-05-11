@@ -34,18 +34,18 @@ export function ProviderCard({ provider }: ProviderCardProps) {
       }
     >
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <div className="flex min-w-0 gap-4">
+        <div className="flex min-w-0 gap-3 sm:gap-4">
           {canShowLogo ? (
             <div
               aria-label={`${provider.provider_name} logo`}
-              className="h-14 w-14 shrink-0 rounded-md border border-neutral-200 bg-white bg-cover bg-center"
+              className="h-12 w-12 shrink-0 rounded-md border border-neutral-200 bg-white bg-cover bg-center sm:h-14 sm:w-14"
               role="img"
               style={{ backgroundImage: `url("${provider.logo_url}")` }}
             />
           ) : null}
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
-              <h2 className="text-xl font-semibold text-neutral-950">
+              <h2 className="break-words text-lg font-semibold leading-snug text-neutral-950 sm:text-xl">
                 {provider.provider_name}
               </h2>
               <VerifiedBadge
@@ -65,11 +65,13 @@ export function ProviderCard({ provider }: ProviderCardProps) {
           </div>
         </div>
 
-        <PricingBadge value={provider.pricing_range} />
+        <div className="self-start">
+          <PricingBadge value={provider.pricing_range} />
+        </div>
       </div>
 
       {provider.description ? (
-        <p className="mt-4 text-sm leading-6 text-neutral-700">
+        <p className="mt-4 break-words text-sm leading-6 text-neutral-700">
           {provider.description}
         </p>
       ) : null}
@@ -96,7 +98,10 @@ export function ProviderCard({ provider }: ProviderCardProps) {
       </div>
 
       <div className="mt-6">
-        <Link className="btn-primary" href={`/providers/${provider.slug}`}>
+        <Link
+          className="btn-primary w-full sm:w-auto"
+          href={`/providers/${provider.slug}`}
+        >
           View profile
         </Link>
       </div>

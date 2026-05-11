@@ -47,10 +47,10 @@ export default async function RegisterProviderPage() {
   const { provider, error } = await getProviderProfile();
 
   return (
-    <section className="section-container py-10 md:py-14">
+    <section className="section-container py-8 sm:py-10 md:py-14">
       <div className="max-w-3xl">
         <p className="eyebrow">Register provider</p>
-        <h1 className="mt-3 text-3xl font-bold tracking-normal text-neutral-950">
+        <h1 className="mt-3 text-2xl font-bold leading-tight tracking-normal text-neutral-950 sm:text-3xl">
           Provider registration
         </h1>
         <p className="mt-4 text-sm leading-6 text-neutral-700">
@@ -71,12 +71,16 @@ export default async function RegisterProviderPage() {
               Manage your profile, leads, and analytics from the provider
               dashboard.
             </p>
-            <div className="mt-6 flex flex-wrap gap-3">
-              <Link className="btn-primary" href="/dashboard" prefetch={false}>
+            <div className="mt-6 grid gap-3 sm:flex sm:flex-wrap">
+              <Link
+                className="btn-primary w-full sm:w-auto"
+                href="/dashboard"
+                prefetch={false}
+              >
                 Go to dashboard
               </Link>
               <Link
-                className="btn-secondary"
+                className="btn-secondary w-full sm:w-auto"
                 href="/dashboard/billing"
                 prefetch={false}
               >

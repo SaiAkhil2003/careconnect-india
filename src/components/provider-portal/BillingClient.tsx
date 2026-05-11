@@ -26,14 +26,14 @@ export function BillingClient({
   if (!provider) {
     return (
       <div className="card max-w-3xl">
-        <h2 className="text-2xl font-bold tracking-normal text-neutral-950">
+        <h2 className="text-xl font-bold leading-tight tracking-normal text-neutral-950 sm:text-2xl">
           Please register your provider profile first.
         </h2>
         <p className="mt-4 text-sm leading-6 text-neutral-700">
           Billing is available after your provider profile has been created.
         </p>
         <Link
-          className="btn-primary mt-6"
+          className="btn-primary mt-6 w-full sm:w-auto"
           href="/register-provider"
           prefetch={false}
         >
@@ -101,7 +101,7 @@ export function BillingClient({
 
       <section className="card">
         <p className="text-sm font-medium text-neutral-600">Current provider</p>
-        <h2 className="mt-2 text-2xl font-bold tracking-normal text-neutral-950">
+        <h2 className="mt-2 break-words text-xl font-bold leading-tight tracking-normal text-neutral-950 sm:text-2xl">
           {provider.provider_name}
         </h2>
         <p className="mt-3 text-sm leading-6 text-neutral-700">

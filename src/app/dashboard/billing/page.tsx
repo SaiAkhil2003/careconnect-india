@@ -78,25 +78,25 @@ export default async function DashboardBillingPage({
 
   if (error) {
     return (
-      <section className="section-container py-10 md:py-14">
+      <section className="section-container py-8 sm:py-10 md:py-14">
         <ErrorState message={error} title="Billing unavailable" />
       </section>
     );
   }
 
   return (
-    <section className="section-container py-10 md:py-14">
+    <section className="section-container py-8 sm:py-10 md:py-14">
       <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
           <p className="eyebrow">Provider portal</p>
-          <h1 className="mt-3 text-3xl font-bold tracking-normal text-neutral-950">
+          <h1 className="mt-3 text-2xl font-bold leading-tight tracking-normal text-neutral-950 sm:text-3xl">
             Billing
           </h1>
           <p className="mt-4 text-sm leading-6 text-neutral-700">
             Manage your CareConnect India listing plan.
           </p>
         </div>
-        <Link className="btn-secondary" href="/dashboard">
+        <Link className="btn-secondary w-full sm:w-auto" href="/dashboard">
           Back to dashboard
         </Link>
       </div>

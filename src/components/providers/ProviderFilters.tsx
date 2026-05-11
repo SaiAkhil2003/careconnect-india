@@ -20,7 +20,7 @@ type ProviderFiltersProps = {
 
 export function ProviderFilters({ filters }: ProviderFiltersProps) {
   return (
-    <aside className="card">
+    <aside className="card lg:self-start">
       <div className="flex items-center justify-between gap-3">
         <h2 className="text-lg font-semibold text-neutral-950">Filters</h2>
         <Link

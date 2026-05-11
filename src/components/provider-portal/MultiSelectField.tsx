@@ -52,7 +52,7 @@ export function MultiSelectField({
 
           return (
             <label
-              className="flex items-center gap-2 rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-700"
+              className="flex items-start gap-2 rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-700"
               htmlFor={inputId}
               key={normalizedOption.value}
             >
@@ -65,7 +65,9 @@ export function MultiSelectField({
                 type="checkbox"
                 value={normalizedOption.value}
               />
-              <span>{normalizedOption.label}</span>
+              <span className="min-w-0 break-words">
+                {normalizedOption.label}
+              </span>
             </label>
           );
         })}

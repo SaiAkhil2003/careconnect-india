@@ -19,7 +19,7 @@ export function ProviderAnalyticsSummary({
           <p className="text-sm font-medium text-neutral-600">
             Total profile views
           </p>
-          <p className="mt-2 text-3xl font-bold text-neutral-950">
+          <p className="mt-2 text-2xl font-bold text-neutral-950 sm:text-3xl">
             {totalProfileViews}
           </p>
         </article>
@@ -27,7 +27,7 @@ export function ProviderAnalyticsSummary({
           <p className="text-sm font-medium text-neutral-600">
             Total enquiries
           </p>
-          <p className="mt-2 text-3xl font-bold text-neutral-950">
+          <p className="mt-2 text-2xl font-bold text-neutral-950 sm:text-3xl">
             {totalEnquiries}
           </p>
         </article>

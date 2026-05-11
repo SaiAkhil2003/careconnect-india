@@ -53,7 +53,7 @@ export default async function DashboardLeadsPage() {
 
   if (error) {
     return (
-      <section className="section-container py-10 md:py-14">
+      <section className="section-container py-8 sm:py-10 md:py-14">
         <ErrorState message={error} title="Leads unavailable" />
       </section>
     );
@@ -61,13 +61,13 @@ export default async function DashboardLeadsPage() {
 
   if (!provider) {
     return (
-      <section className="section-container py-10 md:py-14">
+      <section className="section-container py-8 sm:py-10 md:py-14">
         <div className="card max-w-3xl">
-          <h1 className="text-3xl font-bold tracking-normal text-neutral-950">
+          <h1 className="text-2xl font-bold leading-tight tracking-normal text-neutral-950 sm:text-3xl">
             Please register your provider profile first.
           </h1>
           <Link
-            className="btn-primary mt-6"
+            className="btn-primary mt-6 w-full sm:w-auto"
             href="/register-provider"
             prefetch={false}
           >
@@ -79,18 +79,18 @@ export default async function DashboardLeadsPage() {
   }
 
   return (
-    <section className="section-container py-10 md:py-14">
+    <section className="section-container py-8 sm:py-10 md:py-14">
       <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-        <div>
+        <div className="min-w-0">
           <p className="eyebrow">Provider portal</p>
-          <h1 className="mt-3 text-3xl font-bold tracking-normal text-neutral-950">
+          <h1 className="mt-3 text-2xl font-bold leading-tight tracking-normal text-neutral-950 sm:text-3xl">
             Leads
           </h1>
-          <p className="mt-4 text-sm leading-6 text-neutral-700">
+          <p className="mt-4 break-words text-sm leading-6 text-neutral-700">
             Enquiries submitted by families for {provider.provider_name}.
           </p>
         </div>
-        <Link className="btn-secondary" href="/dashboard">
+        <Link className="btn-secondary w-full sm:w-auto" href="/dashboard">
           Back to dashboard
         </Link>
       </div>
