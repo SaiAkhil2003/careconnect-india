@@ -3,17 +3,20 @@
 import Link from "next/link";
 import { FormEvent, useState } from "react";
 import {
+  getAreasForCity,
   LANGUAGES,
   PRICING_RANGES,
   SERVICE_TYPES,
   STAFF_COUNT_RANGES,
-  VIZAG_AREAS,
 } from "@/lib/constants";
+import type { PublicCity } from "@/lib/constants";
 import type { Provider } from "@/lib/types";
 import { MultiSelectField } from "@/components/provider-portal/MultiSelectField";
+import { CitySelector } from "@/components/search/CitySelector";
 
 type FormState = {
   provider_name: string;
+  city: string;
   service_types: string[];
   description: string;
   areas_covered: string[];
@@ -31,6 +34,7 @@ type FormState = {
 
 const initialFormState: FormState = {
   provider_name: "",
+  city: "",
   service_types: [],
   description: "",
   areas_covered: [],
@@ -48,6 +52,8 @@ const initialFormState: FormState = {
 
 export function ProviderRegistrationForm() {
   const [formState, setFormState] = useState<FormState>(initialFormState);
+  const [activeCities, setActiveCities] = useState<PublicCity[] | null>(null);
+  const [selectedCity, setSelectedCity] = useState<PublicCity | null>(null);
   const [createdProvider, setCreatedProvider] = useState<Provider | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -59,6 +65,25 @@ export function ProviderRegistrationForm() {
     }));
   }
 
+  function handleCityChange(city: PublicCity | null) {
+    setSelectedCity(city);
+    setFormState((currentFormState) => ({
+      ...currentFormState,
+      city: city?.slug ?? "",
+      areas_covered: [],
+    }));
+  }
+
+  function handleAreasTextChange(value: string) {
+    updateField(
+      "areas_covered",
+      value
+        .split(",")
+        .map((area) => area.trim())
+        .filter(Boolean),
+    );
+  }
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setIsSubmitting(true);
@@ -66,6 +91,12 @@ export function ProviderRegistrationForm() {
 
     if (!formState.email.trim() && !formState.lead_email.trim()) {
       setErrorMessage("Lead email is required when email is empty.");
+      setIsSubmitting(false);
+      return;
+    }
+
+    if (!selectedCity) {
+      setErrorMessage("Select the city where this provider operates.");
       setIsSubmitting(false);
       return;
     }
@@ -137,6 +168,21 @@ export function ProviderRegistrationForm() {
     );
   }
 
+  if (activeCities !== null && activeCities.length === 0) {
+    return (
+      <div className="card">
+        <h2 className="text-xl font-semibold text-neutral-950">
+          Provider registration is temporarily unavailable.
+        </h2>
+        <p className="mt-3 text-sm leading-6 text-neutral-700">
+          Please contact CareConnect India.
+        </p>
+      </div>
+    );
+  }
+
+  const areaOptions = getAreasForCity(selectedCity?.name);
+
   return (
     <form className="card space-y-5" onSubmit={handleSubmit}>
       {errorMessage ? (
@@ -158,6 +204,12 @@ export function ProviderRegistrationForm() {
         />
       </label>
 
+      <CitySelector
+        label="Provider city *"
+        onCitiesLoaded={setActiveCities}
+        onCityChange={handleCityChange}
+      />
+
       <MultiSelectField
         label="Service types"
         name="service_types"
@@ -178,14 +230,33 @@ export function ProviderRegistrationForm() {
         />
       </label>
 
-      <MultiSelectField
-        label="Areas covered"
-        name="areas_covered"
-        onChange={(values) => updateField("areas_covered", values)}
-        options={VIZAG_AREAS}
-        required
-        selectedValues={formState.areas_covered}
-      />
+      {selectedCity && areaOptions.length > 0 ? (
+        <MultiSelectField
+          label="Areas covered"
+          name="areas_covered"
+          onChange={(values) => updateField("areas_covered", values)}
+          options={areaOptions}
+          required
+          selectedValues={formState.areas_covered}
+        />
+      ) : selectedCity ? (
+        <label className="block">
+          <span className="text-sm font-medium text-neutral-800">
+            Areas covered *
+          </span>
+          <textarea
+            className="mt-2 min-h-24 w-full rounded-md border border-neutral-300 px-3 py-2 text-sm text-neutral-950 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary-light"
+            onChange={(event) => handleAreasTextChange(event.target.value)}
+            placeholder="Enter areas separated by commas"
+            required
+            value={formState.areas_covered.join(", ")}
+          />
+        </label>
+      ) : (
+        <p className="rounded-md border border-neutral-200 bg-neutral-50 p-3 text-sm text-neutral-700">
+          Select a provider city to choose city-specific areas covered.
+        </p>
+      )}
 
       <MultiSelectField
         label="Languages spoken"

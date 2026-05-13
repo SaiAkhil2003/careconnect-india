@@ -2,11 +2,11 @@
 
 import { ChangeEvent, FormEvent, useState } from "react";
 import {
+  getAreasForCity,
   LANGUAGES,
   PRICING_RANGES,
   SERVICE_TYPES,
   STAFF_COUNT_RANGES,
-  VIZAG_AREAS,
 } from "@/lib/constants";
 import type { Provider } from "@/lib/types";
 import { MultiSelectField } from "@/components/provider-portal/MultiSelectField";
@@ -65,6 +65,7 @@ export function ProviderProfileForm({ provider }: ProviderProfileFormProps) {
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [isLogoUploading, setIsLogoUploading] = useState(false);
   const [logoUploadMessage, setLogoUploadMessage] = useState("");
+  const areaOptions = getAreasForCity(provider.city);
 
   function updateField(field: keyof FormState, value: string | string[]) {
     setFormState((currentFormState) => ({
@@ -210,7 +211,7 @@ export function ProviderProfileForm({ provider }: ProviderProfileFormProps) {
         label="Areas covered"
         name="areas_covered"
         onChange={(values) => updateField("areas_covered", values)}
-        options={VIZAG_AREAS}
+        options={areaOptions.length ? areaOptions : provider.areas_covered}
         required
         selectedValues={formState.areas_covered}
       />

@@ -54,8 +54,9 @@ export default async function RegisterProviderPage() {
           Provider registration
         </h1>
         <p className="mt-4 text-sm leading-6 text-neutral-700">
-          Submit your provider profile for admin approval. Listings become
-          public only after approval in Supabase Studio.
+          Submit your provider profile under one active city for admin
+          approval. Listings become public only after approval in Supabase
+          Studio.
         </p>
       </div>
 

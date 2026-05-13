@@ -1,33 +1,38 @@
 import Link from "next/link";
 import { LANGUAGES, LISTING_TIERS, SERVICE_TYPES } from "@/lib/constants";
-import { LocationSearchInput } from "@/components/search/LocationSearchInput";
 
 export type ProviderFilterValues = {
   service_type?: string;
-  location?: string;
+  city?: string;
+  area?: string;
   language?: string;
   tier?: string;
   verified?: string;
 };
 
 type ProviderFiltersProps = {
+  areaOptions: string[];
   filters: ProviderFilterValues;
 };
 
-export function ProviderFilters({ filters }: ProviderFiltersProps) {
+export function ProviderFilters({ areaOptions, filters }: ProviderFiltersProps) {
+  const clearHref = filters.city ? `/search?city=${filters.city}` : "/search";
+
   return (
     <aside className="card lg:self-start">
       <div className="flex items-center justify-between gap-3">
         <h2 className="text-lg font-semibold text-neutral-950">Filters</h2>
         <Link
           className="text-sm font-semibold text-primary hover:text-primary-dark"
-          href="/search"
+          href={clearHref}
         >
           Clear
         </Link>
       </div>
 
       <form action="/search" className="mt-5 space-y-4" method="get">
+        <input name="city" type="hidden" value={filters.city ?? ""} />
+
         <label className="block">
           <span className="text-sm font-medium text-neutral-800">
             Service type
@@ -46,7 +51,23 @@ export function ProviderFilters({ filters }: ProviderFiltersProps) {
           </select>
         </label>
 
-        <LocationSearchInput initialValue={filters.location ?? ""} />
+        <label className="block">
+          <span className="text-sm font-medium text-neutral-800">
+            Area/suburb
+          </span>
+          <select
+            className="mt-2 w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-950 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary-light"
+            defaultValue={filters.area ?? ""}
+            name="area"
+          >
+            <option value="">All areas</option>
+            {areaOptions.map((area) => (
+              <option key={area} value={area}>
+                {area}
+              </option>
+            ))}
+          </select>
+        </label>
 
         <label className="block">
           <span className="text-sm font-medium text-neutral-800">Language</span>

@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     template: "%s | CareConnect India",
   },
   description:
-    "MVP foundation for an aged care services aggregator with India-wide location search.",
+    "MVP foundation for an aged care services aggregator with pan-India city-aware search.",
 };
 
 export default function RootLayout({

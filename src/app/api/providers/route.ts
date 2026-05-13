@@ -1,18 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
-  findSupportedState,
-  getSupportedCitiesForState,
   LISTING_TIER_VALUES,
+  resolveCityFromList,
+  resolveCityFromLocationAlias,
   SERVICE_TYPE_VALUES,
 } from "@/lib/constants";
 import { getListingPlan } from "@/lib/payments/plans";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import type { PublicCity } from "@/lib/constants";
 import type { ListingTier, Provider, ServiceType } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
 type ProvidersResponse = {
   providers: Provider[];
+  city?: PublicCity;
+  message?: string;
   pagination: {
     page: number;
     limit: number;
@@ -63,53 +66,32 @@ function arrayIncludesSearchValue(items: string[] | null, searchValue: string) {
   );
 }
 
-function providerMatchesState(provider: Provider, stateValue: string) {
-  const providerWithFutureState = provider as Provider & {
-    state?: string | null;
-  };
-  const stateName = findSupportedState(stateValue);
-
-  if (!stateName) {
-    return false;
-  }
-
-  if (equalsSearchValue(providerWithFutureState.state, stateName)) {
-    return true;
-  }
-
-  const stateCities = getSupportedCitiesForState(stateName);
-
-  return stateCities.some((city) => equalsSearchValue(provider.city, city));
-}
-
-function providerMatchesLocation(provider: Provider, location: string) {
-  const trimmedLocation = location.trim();
-
-  if (!trimmedLocation) {
-    return true;
-  }
-
-  const providerWithFutureState = provider as Provider & {
-    state?: string | null;
-  };
-
-  if (findSupportedState(trimmedLocation)) {
-    return providerMatchesState(provider, trimmedLocation);
-  }
-
-  return (
-    equalsSearchValue(provider.city, trimmedLocation) ||
-    arrayIncludesSearchValue(provider.areas_covered, trimmedLocation) ||
-    equalsSearchValue(providerWithFutureState.state, trimmedLocation)
-  );
-}
-
 function providerMatchesCity(provider: Provider, city: string) {
   return !city.trim() || equalsSearchValue(provider.city, city);
 }
 
 function providerMatchesArea(provider: Provider, area: string) {
   return !area.trim() || arrayIncludesSearchValue(provider.areas_covered, area);
+}
+
+function isMissingCitiesTableError(error: unknown) {
+  if (!error || typeof error !== "object") {
+    return false;
+  }
+
+  const supabaseError = error as { code?: string; message?: string };
+  const message = supabaseError.message?.toLowerCase() ?? "";
+
+  return (
+    supabaseError.code === "42P01" ||
+    supabaseError.code === "PGRST205" ||
+    (message.includes("relation") &&
+      message.includes("cities") &&
+      message.includes("does not exist")) ||
+    (message.includes("table") &&
+      message.includes("cities") &&
+      message.includes("schema cache"))
+  );
 }
 
 function sortProvidersForSearch(providers: Provider[]) {
@@ -143,12 +125,41 @@ function sortProvidersForSearch(providers: Provider[]) {
   });
 }
 
+function emptyProvidersResponse(message: string): ProvidersResponse {
+  return {
+    providers: [],
+    message,
+    pagination: {
+      page: 1,
+      limit: 10,
+      total: 0,
+      total_pages: 0,
+    },
+  };
+}
+
+async function getActiveCities() {
+  const supabase = createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("cities")
+    .select("id, name, slug, state, provider_count, latitude, longitude")
+    .eq("is_active", true)
+    .order("provider_count", { ascending: false })
+    .order("name", { ascending: true });
+
+  if (error) {
+    throw error;
+  }
+
+  return data ?? [];
+}
+
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
     const serviceType = searchParams.get("service_type")?.trim();
+    const requestedCity = searchParams.get("city")?.trim();
     const location = searchParams.get("location")?.trim();
-    const city = searchParams.get("city")?.trim();
     const area = searchParams.get("area")?.trim();
     const language = searchParams.get("language")?.trim();
     const tier = searchParams.get("tier")?.trim();
@@ -175,11 +186,31 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    if (!requestedCity && !location) {
+      return jsonResponse<ProvidersResponse>({
+        success: true,
+        data: emptyProvidersResponse("City is required for provider search."),
+      });
+    }
+
+    const activeCities = await getActiveCities();
+    const selectedCity = requestedCity
+      ? resolveCityFromList(requestedCity, activeCities)
+      : resolveCityFromLocationAlias(location, activeCities);
+
+    if (!selectedCity) {
+      return jsonResponse<ProvidersResponse>({
+        success: true,
+        data: emptyProvidersResponse("This city is not active yet."),
+      });
+    }
+
     const supabase = createSupabaseServerClient();
     let query = supabase
       .from("providers")
       .select("*")
-      .eq("is_active", true);
+      .eq("is_active", true)
+      .ilike("city", selectedCity.name);
 
     if (serviceType) {
       query = query.contains("service_types", [serviceType]);
@@ -208,8 +239,7 @@ export async function GET(request: NextRequest) {
 
     const filteredProviders = (data ?? []).filter(
       (provider) =>
-        providerMatchesLocation(provider, location ?? "") &&
-        providerMatchesCity(provider, city ?? "") &&
+        providerMatchesCity(provider, selectedCity.name) &&
         providerMatchesArea(provider, area ?? ""),
     );
     const sortedProviders = sortProvidersForSearch(filteredProviders);
@@ -220,6 +250,7 @@ export async function GET(request: NextRequest) {
       success: true,
       data: {
         providers: paginatedProviders,
+        city: selectedCity,
         pagination: {
           page,
           limit,
@@ -230,6 +261,17 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error("GET /api/providers failed", error);
+
+    if (isMissingCitiesTableError(error)) {
+      return jsonResponse(
+        {
+          success: false,
+          error:
+            "Database migration is pending. Run supabase/migrations/202605111700_create_cities_table.sql.",
+        },
+        503,
+      );
+    }
 
     return jsonResponse(
       { success: false, error: "Unexpected server error." },

@@ -5,8 +5,10 @@ import {
   type ProviderFilterValues,
 } from "@/components/providers/ProviderFilters";
 import { ProviderList } from "@/components/providers/ProviderList";
+import { SearchCityPrompt } from "@/components/search/SearchCityPrompt";
 import { ErrorState } from "@/components/ui/ErrorState";
-import { findSupportedState } from "@/lib/constants";
+import { getAreasForCity } from "@/lib/constants";
+import type { PublicCity } from "@/lib/constants";
 import type { ListingTier, Provider, ServiceType } from "@/lib/types";
 import {
   formatListingTier,
@@ -18,7 +20,7 @@ export const dynamic = "force-dynamic";
 export const metadata = {
   title: "Search Aged Care Providers",
   description:
-    "Search and filter aged care providers across India by service, location, language, verified status, and listing tier.",
+    "Search and filter city-scoped aged care providers by service, area, language, verified status, and listing tier.",
 };
 
 type SearchPageProps = {
@@ -30,6 +32,8 @@ type ProvidersApiResponse =
       success: true;
       data: {
         providers: Provider[];
+        city?: PublicCity;
+        message?: string;
         pagination: {
           page: number;
           limit: number;
@@ -67,8 +71,8 @@ function getBaseUrl() {
 function getFilters(searchParams: SearchPageProps["searchParams"]) {
   return {
     service_type: getSearchParamValue(searchParams?.service_type) ?? "",
-    location: getSearchParamValue(searchParams?.location) ?? "",
     city: getSearchParamValue(searchParams?.city) ?? "",
+    location: getSearchParamValue(searchParams?.location) ?? "",
     area: getSearchParamValue(searchParams?.area) ?? "",
     language: getSearchParamValue(searchParams?.language) ?? "",
     tier: getSearchParamValue(searchParams?.tier) ?? "",
@@ -84,12 +88,12 @@ function buildApiQuery(filters: ReturnType<typeof getFilters>) {
     query.set("service_type", filters.service_type);
   }
 
-  if (filters.location) {
-    query.set("location", filters.location);
-  }
-
   if (filters.city) {
     query.set("city", filters.city);
+  }
+
+  if (!filters.city && filters.location) {
+    query.set("location", filters.location);
   }
 
   if (filters.area) {
@@ -115,29 +119,21 @@ function buildApiQuery(filters: ReturnType<typeof getFilters>) {
   return query;
 }
 
-function getEffectiveLocation(filters: ReturnType<typeof getFilters>) {
-  return filters.location || filters.city || filters.area;
-}
-
 function formatHeadingService(serviceType: string) {
   const label = formatServiceType(serviceType as ServiceType);
 
   return `${label.charAt(0)}${label.slice(1).toLowerCase()}`;
 }
 
-function getSearchHeading(filters: ReturnType<typeof getFilters>) {
-  const location = getEffectiveLocation(filters);
+function getSearchHeading(
+  filters: ReturnType<typeof getFilters>,
+  cityName: string,
+) {
   const providerLabel = filters.service_type
     ? `${formatHeadingService(filters.service_type)} providers`
     : "Aged care providers";
 
-  if (!location) {
-    return `${providerLabel} across India`;
-  }
-
-  const locationPreposition = findSupportedState(location) ? "in" : "near";
-
-  return `${providerLabel} ${locationPreposition} ${location}`;
+  return `${providerLabel} in ${cityName}`;
 }
 
 function buildSearchHref(filters: ReturnType<typeof getFilters>, page: number) {
@@ -171,6 +167,8 @@ async function getProviders(filters: ReturnType<typeof getFilters>) {
     return {
       providers: result.data.providers,
       pagination: result.data.pagination,
+      city: result.data.city,
+      message: result.data.message ?? "",
       error: "",
     };
   } catch {
@@ -183,12 +181,11 @@ async function getProviders(filters: ReturnType<typeof getFilters>) {
 }
 
 function AppliedFilters({ filters }: { filters: ReturnType<typeof getFilters> }) {
-  const location = getEffectiveLocation(filters);
   const appliedFilters = [
     filters.service_type
       ? `Service type: ${formatServiceType(filters.service_type as ServiceType)}`
       : "",
-    location ? `Location: ${location}` : "",
+    filters.area ? `Area/suburb: ${filters.area}` : "",
     filters.language ? `Language: ${filters.language}` : "",
     filters.tier ? `Tier: ${formatListingTier(filters.tier as ListingTier)}` : "",
     filters.verified === "true" ? "Verified providers" : "",
@@ -197,7 +194,7 @@ function AppliedFilters({ filters }: { filters: ReturnType<typeof getFilters> })
   if (appliedFilters.length === 0) {
     return (
       <p className="mt-3 text-sm leading-6 text-neutral-700">
-        Showing all active providers across India.
+        Showing all active providers in this city.
       </p>
     );
   }
@@ -218,14 +215,61 @@ function AppliedFilters({ filters }: { filters: ReturnType<typeof getFilters> })
 
 export default async function SearchPage({ searchParams }: SearchPageProps) {
   const filters = getFilters(searchParams);
-  const { providers, pagination, error } = await getProviders(filters);
+  const { providers, pagination, error, city, message } =
+    await getProviders(filters);
+  const selectedCitySlug = city?.slug ?? filters.city;
   const filterValues: ProviderFilterValues = {
     service_type: filters.service_type,
-    location: getEffectiveLocation(filters),
+    city: selectedCitySlug,
+    area: filters.area,
     language: filters.language,
     tier: filters.tier,
     verified: filters.verified,
   };
+  const areaOptions = getAreasForCity(city?.name);
+
+  if (!filters.city && !filters.location) {
+    return (
+      <section className="section-container py-8 sm:py-10 md:py-14">
+        <div className="card max-w-3xl">
+          <p className="eyebrow">Search providers</p>
+          <h1 className="mt-3 text-2xl font-bold leading-tight tracking-normal text-neutral-950 sm:text-3xl">
+            Please select a city to view aged care providers.
+          </h1>
+          <p className="mt-4 text-sm leading-6 text-neutral-700">
+            CareConnect is city-aware. Provider listings and area filters are
+            shown only after you select an active city.
+          </p>
+          <SearchCityPrompt />
+        </div>
+      </section>
+    );
+  }
+
+  if (!error && !city) {
+    return (
+      <section className="section-container py-8 sm:py-10 md:py-14">
+        <div className="card max-w-3xl">
+          <p className="eyebrow">City not active</p>
+          <h1 className="mt-3 text-2xl font-bold leading-tight tracking-normal text-neutral-950 sm:text-3xl">
+            CareConnect is not active in this city yet.
+          </h1>
+          <p className="mt-4 text-sm leading-6 text-neutral-700">
+            {message ||
+              "Join the waitlist or check another city."}
+          </p>
+          <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+            <Link className="btn-primary w-full sm:w-auto" href="/contact">
+              Join waitlist
+            </Link>
+            <Link className="btn-secondary w-full sm:w-auto" href="/search">
+              Check another city
+            </Link>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="section-container py-8 sm:py-10 md:py-14">
@@ -233,7 +277,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         <div className="min-w-0">
           <p className="eyebrow">Search providers</p>
           <h1 className="mt-3 text-2xl font-bold leading-tight tracking-normal text-neutral-950 sm:text-3xl">
-            {getSearchHeading(filters)}
+            {city ? getSearchHeading(filters, city.name) : "Search providers"}
           </h1>
           <AppliedFilters filters={filters} />
           <p className="mt-3 max-w-3xl text-xs leading-5 text-neutral-600 sm:text-sm">
@@ -246,13 +290,19 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         </p>
       </div>
 
+      <div className="mt-4 flex flex-wrap gap-3">
+        <Link className="btn-secondary w-full sm:w-auto" href="/search">
+          Change city
+        </Link>
+      </div>
+
       <div className="mt-8 grid gap-6 lg:grid-cols-[280px_1fr]">
-        <ProviderFilters filters={filterValues} />
+        <ProviderFilters areaOptions={areaOptions} filters={filterValues} />
 
         <div className="space-y-6">
           {error ? (
             <ErrorState
-              message="We could not load providers. Please try again."
+              message={error || "We could not load providers. Please try again."}
               title="Provider search failed"
             />
           ) : (

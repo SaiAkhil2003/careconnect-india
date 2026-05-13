@@ -7,6 +7,16 @@ import type {
 import { SUPPORTED_AREAS_BY_CITY } from "@/lib/constants/locations";
 
 export {
+  createCitySlug,
+  formatCityLabel,
+  getAreasForCity,
+  normalizeCityLookup,
+  resolveCityFromArea,
+  resolveCityFromList,
+  resolveCityFromLocationAlias,
+} from "@/lib/constants/cities";
+export type { PublicCity } from "@/lib/constants/cities";
+export {
   LOCATION_SUGGESTIONS,
   SUPPORTED_AREAS_BY_CITY,
   SUPPORTED_CITIES,

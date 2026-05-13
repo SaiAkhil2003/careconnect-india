@@ -1,11 +1,14 @@
 import { auth } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
 import {
+  getAreasForCity,
   PRICING_RANGES,
+  resolveCityFromList,
   SERVICE_TYPE_VALUES,
   STAFF_COUNT_RANGES,
 } from "@/lib/constants";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import type { PublicCity } from "@/lib/constants";
 import type {
   PricingRange,
   Provider,
@@ -101,6 +104,32 @@ async function createUniqueSlug(providerName: string) {
   return `${baseSlug}-${Date.now().toString(36)}`;
 }
 
+async function getActiveCities() {
+  const supabase = createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("cities")
+    .select("id, name, slug, state, provider_count, latitude, longitude")
+    .eq("is_active", true);
+
+  if (error) {
+    throw error;
+  }
+
+  return data ?? [];
+}
+
+function hasOnlyCityAreas(city: PublicCity, areas: string[]) {
+  const cityAreas = getAreasForCity(city.name);
+
+  if (!cityAreas.length) {
+    return true;
+  }
+
+  const normalizedCityAreas = cityAreas.map((area) => area.toLowerCase());
+
+  return areas.every((area) => normalizedCityAreas.includes(area.toLowerCase()));
+}
+
 export async function POST(request: NextRequest) {
   try {
     const { userId } = await auth();
@@ -111,6 +140,7 @@ export async function POST(request: NextRequest) {
 
     const payload = (await request.json()) as Record<string, unknown>;
     const providerName = requiredString(payload.provider_name);
+    const requestedCity = requiredString(payload.city);
     const serviceTypes = stringArray(payload.service_types);
     const areasCovered = stringArray(payload.areas_covered);
     const languagesSpoken = stringArray(payload.languages_spoken);
@@ -128,6 +158,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const activeCities = await getActiveCities();
+    const selectedCity = resolveCityFromList(requestedCity, activeCities);
+
+    if (!selectedCity) {
+      return jsonResponse(
+        { success: false, error: "Select an active provider city." },
+        400,
+      );
+    }
+
     if (!serviceTypes.length || !isValidServiceTypes(serviceTypes)) {
       return jsonResponse(
         { success: false, error: "Select at least one valid service type." },
@@ -138,6 +178,16 @@ export async function POST(request: NextRequest) {
     if (!areasCovered.length) {
       return jsonResponse(
         { success: false, error: "Select at least one area covered." },
+        400,
+      );
+    }
+
+    if (!hasOnlyCityAreas(selectedCity, areasCovered)) {
+      return jsonResponse(
+        {
+          success: false,
+          error: "Areas covered must belong to the selected city.",
+        },
         400,
       );
     }
@@ -221,7 +271,7 @@ export async function POST(request: NextRequest) {
         email,
         website_url: optionalString(payload.website_url),
         address_line: optionalString(payload.address_line),
-        city: "Visakhapatnam",
+        city: selectedCity.name,
         pricing_range: pricingRange as PricingRange | null,
         established_year: establishedYear,
         staff_count_range: staffCountRange as StaffCountRange | null,

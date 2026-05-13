@@ -1,5 +1,6 @@
 import type {
   AnalyticsMetric,
+  City,
   Enquiry,
   ListingTier,
   PricingRange,
@@ -43,6 +44,23 @@ export type Database = {
           updated_at?: string | null;
         };
         Update: Partial<Provider>;
+        Relationships: [];
+      };
+      cities: {
+        Row: City;
+        Insert: {
+          id?: string;
+          name: string;
+          slug: string;
+          state?: string | null;
+          is_active?: boolean | null;
+          provider_count?: number | null;
+          latitude?: number | null;
+          longitude?: number | null;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+        Update: Partial<City>;
         Relationships: [];
       };
       enquiries: {

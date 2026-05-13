@@ -2,9 +2,9 @@
 
 ## Project Summary
 
-CareConnect India MVP v1.1 is an aged care provider discovery platform with India-wide location search. Families can search by state, city, or locality and contact providers. Providers can register, manage profiles, receive leads, view plan-eligible analytics, and upgrade listing plans. Admin approval and verification remain manual through Supabase Studio.
+CareConnect India MVP v1.2 is an aged care provider discovery platform aligned to the final pan-India city-aware brief. Families select or auto-detect an active city first, then search city-scoped providers by service, area/suburb, language, verified status, and listing tier. Providers register under one active city. City activation, provider approval, and verification remain manual through Supabase Studio.
 
-The MVP supports Stripe, Resend, and Twilio WhatsApp foundations, but local integrations can remain unconfigured. Current data includes sample/demo providers for testing only. Real launch requires production credentials, storage setup, staging QA, and verified provider onboarding with consent city by city.
+The MVP supports Stripe, Resend, and Twilio WhatsApp foundations, but local integrations can remain unconfigured. Current data includes sample/demo providers for testing only. Real launch requires production credentials, storage setup, staging QA, at least 2 active cities, 50+ verified real providers, and verified provider onboarding with consent city by city.
 
 ## Developer Brief Compliance Matrix
 
@@ -12,18 +12,20 @@ The MVP supports Stripe, Resend, and Twilio WhatsApp foundations, but local inte
 | --- | --- | --- |
 | Families can search providers | Complete | Homepage and `/search` are implemented. |
 | Families can filter by service type | Complete | `service_type` filter is supported. |
-| Families can filter by location | Complete | Searchable `location` filter supports state, city, and locality search. Legacy `area` and `city` API filters still work. |
+| Families can filter by city | Complete | City selector is primary. `city` is the main public search parameter. |
+| Families can filter by area/suburb | Complete | Area/suburb filter is scoped to the selected city. |
 | Families can filter by languages spoken | Complete | `language` filter is supported. |
 | Families can filter by verified badge | Complete | `verified=true` API and UI filter added. |
 | Families can contact providers | Complete | Enquiry form saves to Supabase. |
 | Provider public profiles exist | Complete | Active providers have SSR profile pages. |
 | Provider SEO profile pages | Complete | Dynamic metadata added for active providers. |
-| Providers can register | Complete | Clerk-protected provider registration exists. |
+| Providers can register | Complete | Clerk-protected provider registration requires one active city. |
 | Providers can manage profile | Complete | Dashboard profile editor exists. |
 | Providers can upload logo | Complete | Supabase Storage upload route added. |
 | Providers can view leads | Complete | Leads dashboard exists. |
 | Providers can view analytics | Complete | Standard/Premium analytics page enabled; Free sees upgrade prompt. |
 | Admin approval through Supabase Studio | Complete | `is_active` remains manually managed. |
+| Admin city activation through Supabase Studio | Complete | `cities.is_active` controls active public cities. |
 | Verified badge through admin | Complete | `is_verified` remains manually managed. Public UI shows badge only for Standard/Premium. |
 | Free listing plan | Complete | Search and dashboard-only leads supported. |
 | Standard listing plan | Complete | Priority, email lead alert foundation, analytics, logo, verified eligibility. |
@@ -37,7 +39,7 @@ The MVP supports Stripe, Resend, and Twilio WhatsApp foundations, but local inte
 | No reviews or ratings | Complete | Intentionally excluded. |
 | No family accounts | Complete | Intentionally excluded. |
 | No custom admin dashboard | Complete | Intentionally excluded. |
-| India-wide location discovery | Complete | Configurable supported state, city, and locality list added. Provider coverage still requires verified onboarding city by city. |
+| Pan-India city-aware discovery | Complete | Active cities are admin-managed and public search is city-scoped. |
 
 ## Completed Items
 
@@ -51,6 +53,7 @@ Foundation:
 
 Supabase database:
 
+- `cities`
 - `providers`
 - `enquiries`
 - `provider_analytics`
@@ -60,10 +63,10 @@ Supabase database:
 
 Public search:
 
-- Homepage search with searchable location input
+- Homepage search with city selector, auto-detect button, and service selector
 - Search results
-- Filters for service, location, language, verified, and tier
-- State, city, and locality location suggestions
+- Filters for service, city-scoped area/suburb, language, verified, and tier
+- Unsupported or inactive cities show a waitlist-style prompt
 - Premium/Standard/Free ordering
 - Empty and error states
 
@@ -125,24 +128,33 @@ Email/WhatsApp foundation:
 
 Admin via Supabase Studio:
 
+- City activation/deactivation through `cities.is_active`
 - Approval through `is_active`
 - Verification through `is_verified`
 - Listing tier can be inspected and corrected manually if required
 
-## India-Wide Search Update
+## Final City-Aware Brief Alignment
 
-- The platform now supports India-wide location search.
-- Location search supports state, city, and locality values.
-- Supported locations are configurable in `src/lib/constants/locations.ts`.
-- `GET /api/providers?location=` searches provider city and areas covered, with state-to-city matching for supported states.
-- India-wide sample/demo seed data lives in `supabase/seed-india-demo.sql`.
+- The platform now follows a pan-India city-aware architecture.
+- City selector is the primary public search entry point.
+- City-scoped `GET /api/providers?city=` is the primary provider search API.
+- `GET /api/cities` returns active cities from the admin-managed `cities` table.
+- Broad `location=` support remains only as a backward-compatible alias.
+- Area/suburb filters are scoped to the selected city.
+- Unsupported or inactive cities show a waitlist-style prompt.
+- City directory migration lives in `supabase/migrations/202605111700_create_cities_table.sql`.
+- Pan-India city directory seed lives in `supabase/seed-cities-india.sql`.
+- City-aware sample/demo seed data lives in `supabase/seed-city-aware-demo.sql`.
 - Current data includes sample/demo providers only.
 - Sample providers are not real providers and do not represent verified real provider coverage.
-- Real launch requires verified provider onboarding and consent city by city.
+- No fake real provider data is included; demo rows must stay clearly labelled as sample/demo.
+- Real launch requires at least 2 active cities, 50+ verified real providers, and provider consent city by city.
 
 ## Remaining Before Real Launch
 
 - Add verified real provider records city by city.
+- Keep at least 2 launch cities active.
+- Onboard 50+ verified real providers before public launch.
 - Verify provider data quality, consent, and contact details.
 - Create Stripe account, products, prices, and webhook.
 - Add Stripe environment variables in Vercel.
@@ -166,7 +178,7 @@ Provider experience:
 
 Admin and data:
 
-- Complete for MVP. Admin uses Supabase Studio for approval and verification.
+- Complete for MVP. Admin uses Supabase Studio for city activation, provider approval, and verification.
 
 Launch readiness:
 
@@ -179,6 +191,8 @@ Launch readiness:
 - Rotate Supabase service role key before production.
 - Add all required Vercel environment variables.
 - Create `provider-logos` Supabase Storage bucket with public read.
+- Keep at least 2 cities active in `public.cities`.
+- Onboard and approve 50+ verified real providers.
 - Approve verified real providers city by city.
 - Set verified badges only for eligible Standard/Premium providers unless founder-approved.
 - Configure Stripe Standard and Premium recurring prices.

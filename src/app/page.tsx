@@ -3,13 +3,13 @@ import type { Metadata } from "next";
 import { HomeSearchForm } from "@/components/search/HomeSearchForm";
 
 export const metadata: Metadata = {
-  title: "Find Aged Care Providers Across India",
+  title: "Find Aged Care Providers by City",
   description:
-    "Search home care, senior living, day care, physiotherapy, geriatric doctor, companion, and dementia care providers by city or locality across India.",
+    "Select your city and search home care, senior living, day care, physiotherapy, geriatric doctor, companion, and dementia care providers.",
   openGraph: {
     title: "CareConnect India",
     description:
-      "Find and contact aged care providers across India with CareConnect India.",
+      "Find and contact city-scoped aged care providers with CareConnect India.",
     type: "website",
   },
 };
@@ -19,14 +19,14 @@ export default function Home() {
     <>
       <section className="section-container py-8 sm:py-10 md:py-16">
         <div className="max-w-4xl">
-          <p className="eyebrow">India-wide aged care discovery</p>
+          <p className="eyebrow">Pan-India city-aware discovery</p>
           <h1 className="mt-3 text-[40px] font-bold leading-tight tracking-normal text-neutral-950 sm:text-5xl lg:text-6xl">
             Find trusted aged care support across India.
           </h1>
           <p className="mt-4 max-w-3xl text-base leading-7 text-neutral-700 sm:mt-5 sm:text-lg sm:leading-8">
-            Search home care, senior living, day care, physiotherapy,
-            geriatric doctor, companion, and dementia care providers by city or
-            locality.
+            Select your city first, then search home care, senior living, day
+            care, physiotherapy, geriatric doctor, companion, and dementia care
+            providers.
           </p>
 
           <HomeSearchForm />
@@ -45,8 +45,8 @@ export default function Home() {
               Search by need
             </h2>
             <p className="mt-3 text-sm leading-6 text-neutral-700">
-              Choose the care service and search by city, state, or locality
-              that match your family&apos;s situation.
+              Select the city where your family needs support, then choose the
+              care service that matches your situation.
             </p>
           </article>
           <article>
@@ -77,8 +77,8 @@ export default function Home() {
               Not sure where to start?
             </h2>
             <p className="mt-2 text-sm leading-6 text-neutral-700">
-              Browse all active providers and narrow the results when you know
-              the service or location.
+              Select an active city first, then narrow provider results by
+              service, area, language, tier, or verification status.
             </p>
           </div>
           <Link className="btn-secondary w-full bg-white sm:w-auto" href="/search">

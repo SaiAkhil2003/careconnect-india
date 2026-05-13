@@ -13,6 +13,19 @@ export type ServiceType =
 
 export type StaffCountRange = "1-5" | "6-20" | "21-50" | "50+";
 
+export type City = {
+  id: string;
+  name: string;
+  slug: string;
+  state: string | null;
+  is_active: boolean | null;
+  provider_count: number | null;
+  latitude: number | null;
+  longitude: number | null;
+  created_at: string | null;
+  updated_at: string | null;
+};
+
 export type Provider = {
   id: string;
   clerk_user_id: string | null;

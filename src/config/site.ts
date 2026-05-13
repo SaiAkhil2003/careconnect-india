@@ -1,7 +1,7 @@
 export const siteConfig = {
   name: "CareConnect India",
   description: "Aged Care Services Aggregator",
-  coverage: "India-wide search, verified providers added city by city",
+  coverage: "Pan-India city-aware search, active cities added city by city",
   navItems: [
     { label: "Home", href: "/" },
     { label: "Search", href: "/search" },

@@ -1,6 +1,6 @@
 # CareConnect India
 
-CareConnect India is an MVP aged care services aggregator with India-wide location search. Families can search by state, city, or locality, filter, compare, and contact aged care providers. Providers can register, manage profiles, view leads, view plan-eligible analytics, and upgrade listing tiers. Admin approval and verified badge management are handled through Supabase Studio for MVP v1.
+CareConnect India is an MVP aged care services aggregator aligned to the final pan-India city-aware brief. Families select or auto-detect an active city first, then search city-scoped providers by service, area/suburb, language, verified status, and listing tier. Providers register under one active city. City activation, provider approval, and verified badge management are handled through Supabase Studio for MVP v1.
 
 GitHub repository:
 
@@ -10,15 +10,20 @@ git@github.com:SaiAkhil2003/careconnect-india.git
 
 ## MVP Purpose
 
-The MVP validates whether families can discover aged care providers by location and submit enquiries, while providers can receive leads and manage a public profile. Current provider data includes sample/demo listings only. Real launch requires verified provider onboarding, consent, and manual founder QA city by city before production rollout.
+The MVP validates whether families can discover aged care providers inside a selected city and submit enquiries, while providers can receive leads and manage a public profile. Current provider data includes sample/demo listings only. Real launch requires at least 2 active cities, 50+ verified real providers, provider consent, and manual founder QA city by city before production rollout.
 
-## Location Search
+## City-Aware Search
 
-- Public search supports state, city, and locality searches through a configurable supported location list.
-- The current supported list lives in `src/lib/constants/locations.ts`.
+- Public search is city-scoped. `city` is the primary public search parameter.
+- Families select a city on the homepage before viewing providers.
+- `/api/cities` returns active cities managed through Supabase Studio.
+- Area/suburb filters are scoped to the selected city.
+- Broad `location=` search is kept only as a backward-compatible alias in `/api/providers`.
+- City-specific area constants live in `src/lib/constants/locations.ts`.
 - Sample/demo providers are available only for development and testing.
 - Sample providers are not real providers and do not represent verified real provider coverage.
-- Real India-wide coverage must be added through verified provider onboarding city by city.
+- No fake real provider data is included.
+- Unsupported or inactive cities show a waitlist-style prompt.
 
 ## Tech Stack
 
@@ -34,9 +39,9 @@ The MVP validates whether families can discover aged care providers by location 
 
 ## Completed Features
 
-- Public homepage search with searchable location input
-- India-wide state, city, and locality search suggestions
-- Search results with service, location, language, verified, and tier filters
+- Public homepage search with city selector and service selector
+- `/api/cities` active city API
+- City-scoped search results with service, area/suburb, language, verified, and tier filters
 - Provider cards and SEO-ready provider profile pages
 - Enquiry form and enquiry saving
 - Provider analytics tracking
@@ -159,13 +164,37 @@ Open the local URL shown by Next.js, usually `http://localhost:3000`.
 
 ## Supabase Setup
 
-Apply the database migration:
+Apply all database migrations with the Supabase CLI if it is installed:
 
 ```bash
 npx supabase login
 npx supabase link --project-ref your-project-ref
 npx supabase db push
 ```
+
+### Manual City Setup
+
+To apply city setup manually:
+
+1. Open the Supabase SQL Editor.
+2. Run `supabase/migrations/202605111700_create_cities_table.sql`.
+3. Run `supabase/seed-cities-india.sql`.
+4. Verify `GET /api/cities`.
+
+Expected result:
+
+- Bengaluru appears as an active city.
+- Visakhapatnam appears as an active city.
+- Inactive cities do not appear in the active city selector.
+
+Optional CLI equivalent:
+
+```bash
+npx supabase db push
+psql "$SUPABASE_DB_URL" -f supabase/seed-cities-india.sql
+```
+
+The CLI is optional. If it is not installed, use the Supabase SQL Editor steps above.
 
 Seed existing sample providers:
 
@@ -181,14 +210,25 @@ psql "$SUPABASE_DB_URL" -f supabase/seed-india-demo.sql
 
 `supabase/seed-india-demo.sql` can also be run manually in the Supabase SQL Editor. This sample data is for development/testing only and does not represent verified real provider coverage.
 
+Seed the final city-aware demo data:
+
+```bash
+psql "$SUPABASE_DB_URL" -f supabase/seed-city-aware-demo.sql
+```
+
+`supabase/seed-cities-india.sql` seeds the pan-India city directory and keeps only Bengaluru and Visakhapatnam active for MVP testing. `supabase/seed-city-aware-demo.sql` is optional development/testing data that seeds active Bengaluru and Visakhapatnam cities, inactive optional cities, and 10 clearly labelled sample/demo providers across the 2 active cities. It can also be run manually in the Supabase SQL Editor.
+
 Tables:
 
+- `cities`
 - `providers`
 - `enquiries`
 - `provider_analytics`
 
 Admin approval remains manual in Supabase Studio:
 
+- Set `cities.is_active = true` to activate a city.
+- Set `cities.is_active = false` to deactivate a city.
 - Set `providers.is_active = true` to publish.
 - Set `providers.is_verified = true` for approved verified providers.
 - Keep `listing_tier` aligned with billing status.
@@ -279,24 +319,20 @@ npm run build
 npm run dev
 ```
 
-Run `supabase/seed-india-demo.sql` in the target Supabase database before expecting nonzero results for the new India demo city and locality searches.
+Run `supabase/seed-city-aware-demo.sql` in the target Supabase database before expecting nonzero results for Bengaluru and Visakhapatnam city-aware demo searches.
 
 Public pages:
 
 - `/`
 - `/search`
-- `/search?location=Hyderabad`
-- `/search?location=Banjara%20Hills`
-- `/search?location=Telangana`
-- `/search?location=Bengaluru`
-- `/search?location=T%20Nagar`
-- `/search?location=Mumbai`
-- `/search?location=Delhi`
-- `/search?location=Kochi`
-- `/search?service_type=home_care&location=Hyderabad`
-- `/search?verified=true&location=Hyderabad`
+- `/api/cities`
+- `/search?city=bengaluru`
+- `/search?city=visakhapatnam`
+- `/search?city=bengaluru&service_type=home_care`
+- `/search?city=hyderabad`
 - `/providers/sample-vizag-home-care`
 - `/providers/sai-test-elder-care`
+- `/register-provider`
 - `/about`
 - `/how-it-works`
 - `/contact`
@@ -317,16 +353,13 @@ Protected pages:
 
 API checks:
 
+- `GET /api/cities`
 - `GET /api/providers`
-- `GET /api/providers?location=Hyderabad`
-- `GET /api/providers?location=Hyderabad&service_type=home_care`
-- `GET /api/providers?location=Telangana`
-- `GET /api/providers?location=Bengaluru`
-- `GET /api/providers?location=T%20Nagar`
-- `GET /api/providers?location=Mumbai`
-- `GET /api/providers?location=Delhi`
-- `GET /api/providers?verified=true`
-- `GET /api/providers?verified=true&location=Hyderabad`
+- `GET /api/providers?city=bengaluru`
+- `GET /api/providers?city=visakhapatnam`
+- `GET /api/providers?city=bengaluru&service_type=home_care`
+- `GET /api/providers?city=hyderabad`
+- `GET /api/providers?city=bengaluru&verified=true`
 - `GET /api/providers/sample-vizag-home-care`
 - `POST /api/enquiries`
 - `POST /api/provider/billing/checkout`
@@ -334,6 +367,12 @@ API checks:
 Expected:
 
 - Public pages open.
+- City selector loads active cities.
+- Search requires a city.
+- Active cities return city-scoped providers after city-aware seed data is applied.
+- Inactive or unsupported cities show a waitlist-style prompt.
+- Area/suburb filters are scoped to the selected city.
+- Existing provider profile URLs still work.
 - Protected pages redirect to sign-in when signed out.
 - Billing page opens without Stripe keys when signed in.
 - Upgrade attempt without Stripe setup shows `Stripe billing is not configured yet.`
@@ -388,9 +427,12 @@ https://your-vercel-domain/api/webhooks/stripe
 - Twilio WhatsApp is not tested until sandbox or production WhatsApp is configured.
 - Current data includes sample/demo providers only.
 - Sample providers are not real providers.
+- Real launch requires at least 2 active cities and 50+ verified real providers.
 - Real launch requires verified provider onboarding and consent city by city.
-- Supported locations are configurable in `src/lib/constants/locations.ts`.
+- Supported city areas are configurable in `src/lib/constants/locations.ts`.
+- Broad `location=` search is backward-compatible only; the main public flow uses `city=`.
 - Admin approval is through Supabase Studio.
+- City activation/deactivation is through Supabase Studio.
 - No custom admin dashboard in MVP.
 - Provider logo display requires the `provider-logos` bucket.
 - Local seed data is for MVP testing only.

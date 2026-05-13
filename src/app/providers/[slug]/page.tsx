@@ -94,7 +94,7 @@ async function getProviderForMetadata(slug: string) {
     const supabase = createSupabaseServerClient();
     const { data: provider } = await supabase
       .from("providers")
-      .select("provider_name, description")
+      .select("provider_name, description, city")
       .eq("slug", slug)
       .eq("is_active", true)
       .maybeSingle();
@@ -126,9 +126,13 @@ export async function generateMetadata({
   const description =
     provider.description?.trim() || providerDescriptionFallback;
 
+  const title = provider.city
+    ? `${provider.provider_name} | ${provider.city} Aged Care | CareConnect India`
+    : `${provider.provider_name} | CareConnect India`;
+
   return {
     title: {
-      absolute: `${provider.provider_name} | CareConnect India`,
+      absolute: title,
     },
     description,
     openGraph: {

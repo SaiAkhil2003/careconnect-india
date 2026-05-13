@@ -37,7 +37,7 @@ export const SUPPORTED_CITIES_BY_STATE = {
     "Salem",
   ],
   Kerala: ["Kochi", "Thiruvananthapuram", "Kozhikode", "Thrissur"],
-  Maharashtra: ["Mumbai", "Pune", "Nagpur", "Nashik", "Thane"],
+  Maharashtra: ["Mumbai", "Pune", "Nagpur", "Nashik", "Thane", "Navi Mumbai"],
   "Delhi NCR": ["Delhi", "Gurugram", "Noida", "Ghaziabad", "Faridabad"],
   Gujarat: ["Ahmedabad", "Surat", "Vadodara", "Rajkot"],
   Rajasthan: ["Jaipur", "Jodhpur", "Udaipur", "Kota"],
