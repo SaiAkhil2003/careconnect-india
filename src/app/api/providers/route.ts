@@ -11,6 +11,19 @@ import type { PublicCity } from "@/lib/constants";
 import type { ListingTier, Provider, ServiceType } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
+export const fetchCache = "force-no-store";
+
+const NO_STORE_HEADERS = {
+  "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
+  Expires: "0",
+  Pragma: "no-cache",
+  "Surrogate-Control": "no-store",
+};
+
+const ACTIVE_CITIES_PAGE_SIZE = 1000;
+const ACTIVE_CITY_COLUMNS =
+  "id, name, slug, state, provider_count, latitude, longitude";
 
 type ProvidersResponse = {
   providers: Provider[];
@@ -28,7 +41,7 @@ function jsonResponse<T>(
   body: { success: true; data: T } | { success: false; error: string },
   status = 200,
 ) {
-  return NextResponse.json(body, { status });
+  return NextResponse.json(body, { headers: NO_STORE_HEADERS, status });
 }
 
 function getPositiveInteger(value: string | null, fallback: number) {
@@ -140,18 +153,33 @@ function emptyProvidersResponse(message: string): ProvidersResponse {
 
 async function getActiveCities() {
   const supabase = createSupabaseServerClient();
-  const { data, error } = await supabase
-    .from("cities")
-    .select("id, name, slug, state, provider_count, latitude, longitude")
-    .eq("is_active", true)
-    .order("provider_count", { ascending: false })
-    .order("name", { ascending: true });
+  const cities: PublicCity[] = [];
+  let from = 0;
 
-  if (error) {
-    throw error;
+  while (true) {
+    const { data, error } = await supabase
+      .from("cities")
+      .select(ACTIVE_CITY_COLUMNS)
+      .eq("is_active", true)
+      .order("provider_count", { ascending: false })
+      .order("name", { ascending: true })
+      .range(from, from + ACTIVE_CITIES_PAGE_SIZE - 1);
+
+    if (error) {
+      throw error;
+    }
+
+    const page = data ?? [];
+    cities.push(...page);
+
+    if (page.length < ACTIVE_CITIES_PAGE_SIZE) {
+      break;
+    }
+
+    from += ACTIVE_CITIES_PAGE_SIZE;
   }
 
-  return data ?? [];
+  return cities;
 }
 
 export async function GET(request: NextRequest) {
@@ -199,6 +227,14 @@ export async function GET(request: NextRequest) {
       : resolveCityFromLocationAlias(location, activeCities);
 
     if (!selectedCity) {
+      if (process.env.NODE_ENV === "development") {
+        console.info("GET /api/providers city not active", {
+          activeCityCount: activeCities.length,
+          providerCount: 0,
+          requestedCity: requestedCity ?? location ?? "",
+        });
+      }
+
       return jsonResponse<ProvidersResponse>({
         success: true,
         data: emptyProvidersResponse("This city is not active yet."),
@@ -245,6 +281,14 @@ export async function GET(request: NextRequest) {
     const sortedProviders = sortProvidersForSearch(filteredProviders);
     const paginatedProviders = sortedProviders.slice(from, to + 1);
     const total = sortedProviders.length;
+
+    if (process.env.NODE_ENV === "development") {
+      console.info("GET /api/providers providers returned", {
+        activeCityCount: activeCities.length,
+        providerCount: total,
+        requestedCity: requestedCity ?? location ?? "",
+      });
+    }
 
     return jsonResponse<ProvidersResponse>({
       success: true,
