@@ -245,6 +245,31 @@ psql "$SUPABASE_DB_URL" -f supabase/cleanup-demo-providers-pan-india.sql
 
 Keep `supabase/seed-demo-activate-pan-india-cities.sql` separate from the main city seed. Safe MVP mode keeps only Bengaluru and Visakhapatnam active by default. Full demo mode activates cities that have generated demo providers.
 
+### Real Provider Sourcing and Verification
+
+Demo data is only for testing. Real provider data must come from verified and consent-based onboarding. Online directories may be used only for lead discovery and market mapping; they must not be treated as verified data or copied into production without direct verification.
+
+Use these workflow files before importing real providers:
+
+- `docs/REAL_PROVIDER_SOURCE_STRATEGY.md`
+- `docs/provider-research-tracker-template.csv`
+- `docs/PROVIDER_VERIFICATION_CALL_SCRIPT.md`
+- `docs/PROVIDER_LISTING_CONSENT_TEXT.md`
+- `docs/REAL_PROVIDER_IMPORT_CHECKLIST.md`
+- `supabase/provider-import-template.csv`
+
+Providers should not be published unless contact details, service coverage, consent, and admin approval are complete. The recommended launch path is city-by-city real provider onboarding, starting with Visakhapatnam and Bengaluru, then Hyderabad, Chennai, Mumbai, Delhi, Pune, and Kochi.
+
+Recommended collection targets per launch city:
+
+- 10 home care providers.
+- 5 senior living or assisted living providers.
+- 5 physiotherapy or rehab providers.
+- 5 geriatric doctor or clinic providers.
+- 5 companion, day care, or dementia care providers.
+
+These are collection targets, not automatic publication targets.
+
 Tables:
 
 - `cities`
@@ -456,6 +481,8 @@ https://your-vercel-domain/api/webhooks/stripe
 - Sample providers are not real providers.
 - Real launch requires at least 2 active cities and 50+ verified real providers.
 - Real launch requires verified provider onboarding and consent city by city.
+- Online directories are lead discovery sources only, not verification sources.
+- Real providers should be published only after verification, consent, and admin approval.
 - Supported city areas are configurable in `src/lib/constants/locations.ts`.
 - Broad `location=` search is backward-compatible only; the main public flow uses `city=`.
 - Admin approval is through Supabase Studio.

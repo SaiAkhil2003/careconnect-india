@@ -164,12 +164,36 @@ Manual demo data steps:
 
 Safe MVP mode keeps only Bengaluru and Visakhapatnam active by default. Full demo mode activates cities that have generated demo providers.
 
+## Real Provider Sourcing and Verification
+
+Demo data is only for testing. Real provider data must come from verified and consent-based onboarding. Online directories are lead discovery sources only; directory data should not be presented as verified provider data.
+
+The real provider onboarding workflow is documented in:
+
+- `docs/REAL_PROVIDER_SOURCE_STRATEGY.md`
+- `docs/provider-research-tracker-template.csv`
+- `docs/PROVIDER_VERIFICATION_CALL_SCRIPT.md`
+- `docs/PROVIDER_LISTING_CONSENT_TEXT.md`
+- `docs/REAL_PROVIDER_IMPORT_CHECKLIST.md`
+- `supabase/provider-import-template.csv`
+
+Providers should not be published unless the provider name, city, services, contact details, consent, and admin approval have been recorded. The recommended launch path is city-by-city real provider onboarding.
+
+Launch collection priority:
+
+- Phase 1: Visakhapatnam, Bengaluru.
+- Phase 2: Hyderabad, Chennai, Mumbai, Delhi, Pune, Kochi.
+- Phase 3: Kolkata, Ahmedabad, Jaipur, Lucknow, Indore, Guwahati, Coimbatore, Mysuru, Vijayawada, Guntur, Tirupati.
+
+Per launch city, target 10 home care providers, 5 senior living or assisted living providers, 5 physiotherapy or rehab providers, 5 geriatric doctor or clinic providers, and 5 companion, day care, or dementia care providers. These are collection targets, not automatic publication targets.
+
 ## Remaining Before Real Launch
 
 - Add verified real provider records city by city.
 - Keep at least 2 launch cities active.
 - Onboard 50+ verified real providers before public launch.
 - Verify provider data quality, consent, and contact details.
+- Use source tracking, verification scripts, consent wording, and the import checklist before publishing real providers.
 - Create Stripe account, products, prices, and webhook.
 - Add Stripe environment variables in Vercel.
 - Configure Resend API key, sender, and production domain.
