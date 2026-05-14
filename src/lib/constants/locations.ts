@@ -1,3 +1,5 @@
+import { INDIA_PLACES } from "@/lib/constants/india-places";
+
 export type LocationSuggestionType = "state" | "city" | "locality";
 
 export type LocationSuggestion = {
@@ -9,50 +11,31 @@ export type LocationSuggestion = {
   area?: string;
 };
 
-export const SUPPORTED_CITIES_BY_STATE = {
-  "Andhra Pradesh": [
-    "Visakhapatnam",
-    "Vijayawada",
-    "Guntur",
-    "Rajahmundry",
-    "Kakinada",
-    "Tirupati",
-    "Nellore",
-    "Kurnool",
-  ],
-  Telangana: [
-    "Hyderabad",
-    "Secunderabad",
-    "Warangal",
-    "Karimnagar",
-    "Nizamabad",
-    "Khammam",
-  ],
-  Karnataka: ["Bengaluru", "Mysuru", "Mangalore", "Hubballi", "Belagavi"],
-  "Tamil Nadu": [
-    "Chennai",
-    "Coimbatore",
-    "Madurai",
-    "Tiruchirappalli",
-    "Salem",
-  ],
-  Kerala: ["Kochi", "Thiruvananthapuram", "Kozhikode", "Thrissur"],
-  Maharashtra: ["Mumbai", "Pune", "Nagpur", "Nashik", "Thane", "Navi Mumbai"],
-  "Delhi NCR": ["Delhi", "Gurugram", "Noida", "Ghaziabad", "Faridabad"],
-  Gujarat: ["Ahmedabad", "Surat", "Vadodara", "Rajkot"],
-  Rajasthan: ["Jaipur", "Jodhpur", "Udaipur", "Kota"],
-  "Uttar Pradesh": ["Lucknow", "Kanpur", "Varanasi", "Prayagraj", "Agra"],
-  "West Bengal": ["Kolkata", "Howrah", "Siliguri", "Durgapur"],
-  Odisha: ["Bhubaneswar", "Cuttack", "Rourkela"],
-  "Madhya Pradesh": ["Bhopal", "Indore", "Jabalpur", "Gwalior"],
-  Punjab: ["Chandigarh", "Ludhiana", "Amritsar", "Jalandhar"],
-  Haryana: ["Chandigarh", "Gurugram", "Faridabad", "Panipat"],
-  Bihar: ["Patna", "Gaya", "Muzaffarpur"],
-  Assam: ["Guwahati", "Dibrugarh", "Silchar"],
-  Goa: ["Panaji", "Margao"],
-} as const;
+function buildSupportedCitiesByState() {
+  const citiesByState: Record<string, string[]> = {};
 
-export type SupportedState = keyof typeof SUPPORTED_CITIES_BY_STATE;
+  for (const place of INDIA_PLACES) {
+    citiesByState[place.state] ??= [];
+    citiesByState[place.state].push(place.name);
+  }
+
+  return Object.fromEntries(
+    Object.entries(citiesByState)
+      .sort(([firstState], [secondState]) =>
+        firstState.localeCompare(secondState),
+      )
+      .map(([state, cities]) => [
+        state,
+        Array.from(new Set(cities)).sort((firstCity, secondCity) =>
+          firstCity.localeCompare(secondCity),
+        ),
+      ]),
+  );
+}
+
+export const SUPPORTED_CITIES_BY_STATE = buildSupportedCitiesByState();
+
+export type SupportedState = string;
 
 export const SUPPORTED_STATES = Object.keys(
   SUPPORTED_CITIES_BY_STATE,
@@ -142,6 +125,7 @@ export const SUPPORTED_AREAS_BY_CITY = {
   Jaipur: ["Malviya Nagar", "Vaishali Nagar", "C Scheme", "Mansarovar"],
   Indore: ["Vijay Nagar", "Palasia", "Rau", "Annapurna Road"],
   Guwahati: ["Dispur", "Beltola", "Paltan Bazaar", "Six Mile"],
+  Mangaluru: ["Kadri", "Bejai", "Kankanady", "Hampankatta", "Surathkal"],
 } as const;
 
 function normalizeLocationValue(value: string) {

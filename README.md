@@ -20,6 +20,7 @@ The MVP validates whether families can discover aged care providers inside a sel
 - Area/suburb filters are scoped to the selected city.
 - Broad `location=` search is kept only as a backward-compatible alias in `/api/providers`.
 - City-specific area constants live in `src/lib/constants/locations.ts`.
+- Pan-India place suggestions and the city seed are generated from GeoNames India gazetteer data. Source and license notes live in `docs/PLACE_DATA_SOURCES.md`.
 - Sample/demo providers are available only for development and testing.
 - Sample providers are not real providers and do not represent verified real provider coverage.
 - No fake real provider data is included.
@@ -216,7 +217,7 @@ Seed the final city-aware demo data:
 psql "$SUPABASE_DB_URL" -f supabase/seed-city-aware-demo.sql
 ```
 
-`supabase/seed-cities-india.sql` seeds the pan-India city directory and keeps only Bengaluru and Visakhapatnam active for MVP testing. `supabase/seed-city-aware-demo.sql` is optional development/testing data that seeds active Bengaluru and Visakhapatnam cities, inactive optional cities, and 10 clearly labelled sample/demo providers across the 2 active cities. It can also be run manually in the Supabase SQL Editor.
+`supabase/seed-cities-india.sql` seeds the pan-India GeoNames city/place directory and keeps only Bengaluru and Visakhapatnam active for MVP testing. `supabase/seed-city-aware-demo.sql` is optional development/testing data that seeds active Bengaluru and Visakhapatnam cities, inactive optional cities, and 10 clearly labelled sample/demo providers across the 2 active cities. It can also be run manually in the Supabase SQL Editor.
 
 Tables:
 

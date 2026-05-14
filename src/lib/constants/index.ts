@@ -30,6 +30,8 @@ export type {
   LocationSuggestionType,
   SupportedState,
 } from "@/lib/constants/locations";
+export { INDIA_PLACES, INDIA_PLACE_SOURCE } from "@/lib/constants/india-places";
+export type { IndiaPlace } from "@/lib/constants/india-places";
 
 export const SERVICE_TYPES = [
   { value: "home_care", label: "Home Care" },
