@@ -150,6 +150,20 @@ Admin via Supabase Studio:
 - No fake real provider data is included; demo rows must stay clearly labelled as sample/demo.
 - Real launch requires at least 2 active cities, 50+ verified real providers, and provider consent city by city.
 
+## Pan India Demo Provider Data
+
+A demo provider seed exists for almost every city/place in `public.cities`. Normal cities receive multiple demo provider types, and major cities receive demo providers across all supported service types. Demo providers are not real providers.
+
+Demo data is only for UI testing, search testing, city activation demos, and stakeholder review. Real launch requires verified provider onboarding, provider consent, and admin approval. All-city activation is demo only, and production should activate cities only after real provider coverage exists.
+
+Manual demo data steps:
+
+- To load demo providers, run `supabase/seed-demo-providers-pan-india.sql`.
+- To activate all demo cities, run `supabase/seed-demo-activate-pan-india-cities.sql`.
+- To remove generated demo providers, run `supabase/cleanup-demo-providers-pan-india.sql`.
+
+Safe MVP mode keeps only Bengaluru and Visakhapatnam active by default. Full demo mode activates cities that have generated demo providers.
+
 ## Remaining Before Real Launch
 
 - Add verified real provider records city by city.

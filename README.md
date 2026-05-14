@@ -219,6 +219,32 @@ psql "$SUPABASE_DB_URL" -f supabase/seed-city-aware-demo.sql
 
 `supabase/seed-cities-india.sql` seeds the pan-India GeoNames city/place directory and keeps only Bengaluru and Visakhapatnam active for MVP testing. `supabase/seed-city-aware-demo.sql` is optional development/testing data that seeds active Bengaluru and Visakhapatnam cities, inactive optional cities, and 10 clearly labelled sample/demo providers across the 2 active cities. It can also be run manually in the Supabase SQL Editor.
 
+### Pan India Demo Provider Data
+
+A Pan India demo provider seed exists for almost every city/place in `public.cities`. Normal cities receive multiple demo provider types, and major cities receive demo providers across all supported service types. These demo providers are not real providers and are only for UI testing, search testing, city activation demos, and stakeholder review.
+
+Real launch requires verified provider onboarding, provider consent, and admin approval. All-city activation is demo only. Production should activate cities only after real provider coverage exists.
+
+To load demo providers:
+
+```bash
+psql "$SUPABASE_DB_URL" -f supabase/seed-demo-providers-pan-india.sql
+```
+
+To activate all demo cities:
+
+```bash
+psql "$SUPABASE_DB_URL" -f supabase/seed-demo-activate-pan-india-cities.sql
+```
+
+To remove generated demo providers:
+
+```bash
+psql "$SUPABASE_DB_URL" -f supabase/cleanup-demo-providers-pan-india.sql
+```
+
+Keep `supabase/seed-demo-activate-pan-india-cities.sql` separate from the main city seed. Safe MVP mode keeps only Bengaluru and Visakhapatnam active by default. Full demo mode activates cities that have generated demo providers.
+
 Tables:
 
 - `cities`
