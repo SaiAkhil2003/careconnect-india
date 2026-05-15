@@ -55,6 +55,18 @@ export type Provider = {
   updated_at: string | null;
 };
 
+export type PublicProvider = Omit<
+  Provider,
+  | "clerk_user_id"
+  | "stripe_customer_id"
+  | "stripe_subscription_id"
+  | "lead_email"
+  | "lead_whatsapp"
+  | "is_active"
+  | "created_at"
+  | "updated_at"
+>;
+
 export type Enquiry = {
   id: string;
   provider_id: string | null;

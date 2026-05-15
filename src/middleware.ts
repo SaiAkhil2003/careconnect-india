@@ -2,17 +2,25 @@ import {
   clerkMiddleware,
   createRouteMatcher,
 } from "@clerk/nextjs/server";
+import { NextResponse } from "next/server";
 
 const isProtectedRoute = createRouteMatcher([
   "/dashboard(.*)",
   "/register-provider(.*)",
 ]);
 
-export default clerkMiddleware(async (auth, req) => {
+const careConnectMiddleware =
+  (process.env.E2E_TEST_MODE === "true" || process.env.NODE_ENV === "test")
+    ? function e2eMockMiddleware() {
+        return NextResponse.next();
+      }
+    : clerkMiddleware(async (auth, req) => {
   if (isProtectedRoute(req)) {
     await auth.protect();
   }
 });
+
+export default careConnectMiddleware;
 
 export const config = {
   matcher: [

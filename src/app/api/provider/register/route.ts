@@ -8,6 +8,11 @@ import {
   STAFF_COUNT_RANGES,
 } from "@/lib/constants";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import {
+  isE2eAuthenticatedProvider,
+  isE2eMockMode,
+  registerE2eProvider,
+} from "@/lib/testing/e2e-mocks";
 import type { PublicCity } from "@/lib/constants";
 import type {
   PricingRange,
@@ -131,6 +136,20 @@ function hasOnlyCityAreas(city: PublicCity, areas: string[]) {
 }
 
 export async function POST(request: NextRequest) {
+  if (isE2eMockMode()) {
+    if (!isE2eAuthenticatedProvider(request)) {
+      return jsonResponse({ success: false, error: "Unauthenticated." }, 401);
+    }
+
+    const payload = (await request.json()) as Record<string, unknown>;
+    const provider = registerE2eProvider(payload);
+
+    return jsonResponse<{ provider: Provider }>({
+      success: true,
+      data: { provider },
+    });
+  }
+
   try {
     const { userId } = await auth();
 

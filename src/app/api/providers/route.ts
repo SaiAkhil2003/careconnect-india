@@ -6,9 +6,18 @@ import {
   SERVICE_TYPE_VALUES,
 } from "@/lib/constants";
 import { getListingPlan } from "@/lib/payments/plans";
+import { PUBLIC_PROVIDER_COLUMNS } from "@/lib/providers/public";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import {
+  getE2eMockProviderSearchResponse,
+  isE2eMockMode,
+} from "@/lib/testing/e2e-mocks";
 import type { PublicCity } from "@/lib/constants";
-import type { ListingTier, Provider, ServiceType } from "@/lib/types";
+import type {
+  ListingTier,
+  PublicProvider,
+  ServiceType,
+} from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -26,7 +35,7 @@ const ACTIVE_CITY_COLUMNS =
   "id, name, slug, state, provider_count, latitude, longitude";
 
 type ProvidersResponse = {
-  providers: Provider[];
+  providers: PublicProvider[];
   city?: PublicCity;
   message?: string;
   pagination: {
@@ -54,14 +63,6 @@ function getPositiveInteger(value: string | null, fallback: number) {
   return parsed;
 }
 
-function getCreatedAtTime(provider: Provider) {
-  if (!provider.created_at) {
-    return 0;
-  }
-
-  return new Date(provider.created_at).getTime();
-}
-
 function normalizeSearchValue(value: string | null | undefined) {
   return value?.trim().toLowerCase() ?? "";
 }
@@ -79,11 +80,11 @@ function arrayIncludesSearchValue(items: string[] | null, searchValue: string) {
   );
 }
 
-function providerMatchesCity(provider: Provider, city: string) {
+function providerMatchesCity(provider: PublicProvider, city: string) {
   return !city.trim() || equalsSearchValue(provider.city, city);
 }
 
-function providerMatchesArea(provider: Provider, area: string) {
+function providerMatchesArea(provider: PublicProvider, area: string) {
   return !area.trim() || arrayIncludesSearchValue(provider.areas_covered, area);
 }
 
@@ -107,7 +108,7 @@ function isMissingCitiesTableError(error: unknown) {
   );
 }
 
-function sortProvidersForSearch(providers: Provider[]) {
+function sortProvidersForSearch(providers: PublicProvider[]) {
   return [...providers].sort((firstProvider, secondProvider) => {
     const priorityDifference =
       getListingPlan(secondProvider.listing_tier).searchPriority -
@@ -123,13 +124,6 @@ function sortProvidersForSearch(providers: Provider[]) {
 
     if (verifiedDifference !== 0) {
       return verifiedDifference;
-    }
-
-    const createdAtDifference =
-      getCreatedAtTime(secondProvider) - getCreatedAtTime(firstProvider);
-
-    if (createdAtDifference !== 0) {
-      return createdAtDifference;
     }
 
     return firstProvider.provider_name.localeCompare(
@@ -221,6 +215,13 @@ export async function GET(request: NextRequest) {
       });
     }
 
+    if (isE2eMockMode()) {
+      return jsonResponse<ProvidersResponse>({
+        success: true,
+        data: getE2eMockProviderSearchResponse(searchParams),
+      });
+    }
+
     const activeCities = await getActiveCities();
     const selectedCity = requestedCity
       ? resolveCityFromList(requestedCity, activeCities)
@@ -244,7 +245,7 @@ export async function GET(request: NextRequest) {
     const supabase = createSupabaseServerClient();
     let query = supabase
       .from("providers")
-      .select("*")
+      .select(PUBLIC_PROVIDER_COLUMNS)
       .eq("is_active", true)
       .ilike("city", selectedCity.name);
 
@@ -273,7 +274,8 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const filteredProviders = (data ?? []).filter(
+    const providerRows = (data ?? []) as unknown as PublicProvider[];
+    const filteredProviders = providerRows.filter(
       (provider) =>
         providerMatchesCity(provider, selectedCity.name) &&
         providerMatchesArea(provider, area ?? ""),

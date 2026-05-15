@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
+import { PUBLIC_PROVIDER_COLUMNS } from "@/lib/providers/public";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import type { Provider } from "@/lib/types";
+import {
+  getE2eMockProviderBySlug,
+  isE2eMockMode,
+} from "@/lib/testing/e2e-mocks";
+import type { PublicProvider } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
@@ -25,10 +30,26 @@ export async function GET(
       );
     }
 
+    if (isE2eMockMode()) {
+      const provider = getE2eMockProviderBySlug(slug);
+
+      if (!provider) {
+        return jsonResponse(
+          { success: false, error: "Provider not found." },
+          404,
+        );
+      }
+
+      return jsonResponse<{ provider: PublicProvider }>({
+        success: true,
+        data: { provider },
+      });
+    }
+
     const supabase = createSupabaseServerClient();
-    const { data: provider, error } = await supabase
+    const { data: providerResult, error } = await supabase
       .from("providers")
-      .select("*")
+      .select(PUBLIC_PROVIDER_COLUMNS)
       .eq("slug", slug)
       .eq("is_active", true)
       .maybeSingle();
@@ -39,6 +60,8 @@ export async function GET(
         500,
       );
     }
+
+    const provider = providerResult as unknown as PublicProvider | null;
 
     if (!provider) {
       return jsonResponse(
@@ -59,7 +82,7 @@ export async function GET(
       console.error("Failed to increment profile view count", analyticsError);
     }
 
-    return jsonResponse<{ provider: Provider }>({
+    return jsonResponse<{ provider: PublicProvider }>({
       success: true,
       data: { provider },
     });

@@ -6,7 +6,11 @@ import { PricingBadge } from "@/components/providers/PricingBadge";
 import { VerifiedBadge } from "@/components/providers/VerifiedBadge";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import type { Provider } from "@/lib/types";
+import {
+  getE2eMockProviderBySlug,
+  isE2eMockMode,
+} from "@/lib/testing/e2e-mocks";
+import type { PublicProvider } from "@/lib/types";
 import {
   formatListingTier,
   formatPricingRangeLabel,
@@ -25,7 +29,7 @@ type ProviderProfileApiResponse =
   | {
       success: true;
       data: {
-        provider: Provider;
+        provider: PublicProvider;
       };
     }
   | {
@@ -90,6 +94,18 @@ async function getProvider(slug: string) {
 }
 
 async function getProviderForMetadata(slug: string) {
+  if (isE2eMockMode()) {
+    const provider = getE2eMockProviderBySlug(slug);
+
+    return provider
+      ? {
+          provider_name: provider.provider_name,
+          description: provider.description,
+          city: provider.city,
+        }
+      : null;
+  }
+
   try {
     const supabase = createSupabaseServerClient();
     const { data: provider } = await supabase

@@ -5,6 +5,11 @@ import {
 } from "@/lib/notifications/email";
 import { sendProviderWhatsAppLead } from "@/lib/notifications/whatsapp";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import {
+  createE2eMockEnquiry,
+  E2E_MOCK_PROVIDERS,
+  isE2eMockMode,
+} from "@/lib/testing/e2e-mocks";
 import type { Enquiry, Provider } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -139,6 +144,45 @@ export async function POST(request: NextRequest) {
         { success: false, error: "service_needed is required." },
         400,
       );
+    }
+
+    if (isE2eMockMode()) {
+      const provider = E2E_MOCK_PROVIDERS.find(
+        (mockProvider) =>
+          mockProvider.id === providerId && mockProvider.is_active,
+      );
+
+      if (!provider) {
+        return jsonResponse(
+          { success: false, error: "Provider not found." },
+          404,
+        );
+      }
+
+      const deliverySummary: DeliverySummary = {
+        family_email_attempted: Boolean(familyEmail),
+        provider_email_attempted: false,
+        whatsapp_attempted: false,
+        provider_delivery_success: false,
+      };
+
+      return jsonResponse<{
+        enquiry: Enquiry;
+        delivery_summary: DeliverySummary;
+      }>({
+        success: true,
+        data: {
+          enquiry: createE2eMockEnquiry({
+            provider_id: providerId,
+            family_name: familyName,
+            family_phone: familyPhone,
+            family_email: familyEmail,
+            service_needed: serviceNeeded,
+            message,
+          }),
+          delivery_summary: deliverySummary,
+        },
+      });
     }
 
     const supabase = createSupabaseServerClient();

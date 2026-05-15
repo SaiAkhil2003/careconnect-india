@@ -1,6 +1,11 @@
 import { auth } from "@clerk/nextjs/server";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import {
+  getE2eAuthenticatedProvider,
+  getE2eProviderAnalytics,
+  isE2eMockMode,
+} from "@/lib/testing/e2e-mocks";
 import type { ProviderAnalytics } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -12,7 +17,39 @@ function jsonResponse<T>(
   return NextResponse.json(body, { status });
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  if (isE2eMockMode()) {
+    const { authenticated, provider } = getE2eAuthenticatedProvider(request);
+
+    if (!authenticated) {
+      return jsonResponse({ success: false, error: "Unauthenticated." }, 401);
+    }
+
+    if (!provider) {
+      return jsonResponse<{
+        total_profile_views: number;
+        total_enquiries: number;
+        daily_rows: ProviderAnalytics[];
+      }>({
+        success: true,
+        data: {
+          total_profile_views: 0,
+          total_enquiries: 0,
+          daily_rows: [],
+        },
+      });
+    }
+
+    return jsonResponse<{
+      total_profile_views: number;
+      total_enquiries: number;
+      daily_rows: ProviderAnalytics[];
+    }>({
+      success: true,
+      data: getE2eProviderAnalytics(),
+    });
+  }
+
   try {
     const { userId } = await auth();
 

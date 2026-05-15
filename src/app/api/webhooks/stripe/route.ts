@@ -5,6 +5,10 @@ import {
   STRIPE_BILLING_SETUP_ERROR,
 } from "@/lib/payments/stripe";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import {
+  isE2eMockMode,
+  updateE2eProviderTier,
+} from "@/lib/testing/e2e-mocks";
 import type { ListingTier, Provider } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -67,6 +71,11 @@ async function handleCheckoutSessionCompleted(
     return;
   }
 
+  if (isE2eMockMode()) {
+    updateE2eProviderTier(targetTier);
+    return;
+  }
+
   const stripeCustomerId = getStripeId(session.customer);
   const stripeSubscriptionId = getStripeId(session.subscription);
   const updates: Partial<Provider> = {
@@ -111,6 +120,11 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
     return;
   }
 
+  if (isE2eMockMode()) {
+    updateE2eProviderTier(updates.listing_tier ?? "free");
+    return;
+  }
+
   const supabase = createSupabaseServerClient();
   const { error } = await supabase
     .from("providers")
@@ -123,6 +137,11 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
 }
 
 async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
+  if (isE2eMockMode()) {
+    updateE2eProviderTier("free");
+    return;
+  }
+
   const supabase = createSupabaseServerClient();
   const { error } = await supabase
     .from("providers")

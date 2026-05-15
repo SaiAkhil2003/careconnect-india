@@ -1,9 +1,9 @@
-import type { Provider } from "@/lib/types";
+import type { PublicProvider } from "@/lib/types";
 import { ProviderCard } from "@/components/providers/ProviderCard";
 import { EmptyState } from "@/components/ui/EmptyState";
 
 type ProviderListProps = {
-  providers: Provider[];
+  providers: PublicProvider[];
 };
 
 export function ProviderList({ providers }: ProviderListProps) {

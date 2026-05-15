@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { PublicCity } from "@/lib/constants";
+import { E2E_MOCK_CITIES, isE2eMockMode } from "@/lib/testing/e2e-mocks";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -81,6 +82,13 @@ async function getAllActiveCities() {
 }
 
 export async function GET() {
+  if (isE2eMockMode()) {
+    return jsonResponse<CitiesResponse>({
+      success: true,
+      data: { cities: E2E_MOCK_CITIES },
+    });
+  }
+
   try {
     const cities = await getAllActiveCities();
 

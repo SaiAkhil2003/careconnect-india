@@ -6,6 +6,11 @@ import {
   STAFF_COUNT_RANGES,
 } from "@/lib/constants";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import {
+  getE2eAuthenticatedProvider,
+  isE2eMockMode,
+  updateE2eAuthenticatedProvider,
+} from "@/lib/testing/e2e-mocks";
 import type {
   PricingRange,
   Provider,
@@ -99,7 +104,20 @@ function isValidStaffCountRange(value: string | null) {
   );
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  if (isE2eMockMode()) {
+    const { authenticated, provider } = getE2eAuthenticatedProvider(request);
+
+    if (!authenticated) {
+      return jsonResponse({ success: false, error: "Unauthenticated." }, 401);
+    }
+
+    return jsonResponse<{ provider: Provider | null }>({
+      success: true,
+      data: { provider },
+    });
+  }
+
   try {
     const { userId } = await auth();
     const clerkUserId = requiredUserId(userId);
@@ -137,6 +155,29 @@ export async function GET() {
 }
 
 export async function PATCH(request: NextRequest) {
+  if (isE2eMockMode()) {
+    const { authenticated, provider } = getE2eAuthenticatedProvider(request);
+
+    if (!authenticated) {
+      return jsonResponse({ success: false, error: "Unauthenticated." }, 401);
+    }
+
+    if (!provider) {
+      return jsonResponse(
+        { success: false, error: "Provider profile not found." },
+        404,
+      );
+    }
+
+    const payload = (await request.json()) as Partial<Provider>;
+    const updatedProvider = updateE2eAuthenticatedProvider(payload);
+
+    return jsonResponse<{ provider: Provider }>({
+      success: true,
+      data: { provider: updatedProvider },
+    });
+  }
+
   try {
     const { userId } = await auth();
     const clerkUserId = requiredUserId(userId);

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { Provider } from "@/lib/types";
+import type { PublicProvider } from "@/lib/types";
 import {
   formatArrayPreview,
   formatPricingRangeLabel,
@@ -9,10 +9,10 @@ import { PricingBadge } from "@/components/providers/PricingBadge";
 import { VerifiedBadge } from "@/components/providers/VerifiedBadge";
 
 type ProviderCardProps = {
-  provider: Provider;
+  provider: PublicProvider;
 };
 
-function getPlacementLabel(provider: Provider) {
+function getPlacementLabel(provider: PublicProvider) {
   if (provider.listing_tier === "premium") {
     return "Premium placement";
   }

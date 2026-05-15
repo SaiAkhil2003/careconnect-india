@@ -9,7 +9,7 @@ import { SearchCityPrompt } from "@/components/search/SearchCityPrompt";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { getAreasForCity } from "@/lib/constants";
 import type { PublicCity } from "@/lib/constants";
-import type { ListingTier, Provider, ServiceType } from "@/lib/types";
+import type { ListingTier, PublicProvider, ServiceType } from "@/lib/types";
 import {
   formatListingTier,
   formatServiceType,
@@ -33,7 +33,7 @@ type ProvidersApiResponse =
   | {
       success: true;
       data: {
-        providers: Provider[];
+        providers: PublicProvider[];
         city?: PublicCity;
         message?: string;
         pagination: {

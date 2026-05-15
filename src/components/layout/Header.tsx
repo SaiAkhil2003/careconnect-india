@@ -6,6 +6,8 @@ export function Header() {
   const publicNavItems = siteConfig.navItems.filter(
     (item) => item.href !== "/register-provider",
   );
+  const useE2eMockAuth =
+    process.env.E2E_TEST_MODE === "true" || process.env.NODE_ENV === "test";
 
   return (
     <header className="border-b border-neutral-200 bg-white">
@@ -32,50 +34,75 @@ export function Header() {
                 </Link>
               </li>
             ))}
-            <SignedOut>
-              <li>
-                <Link
-                  className="inline-flex min-h-8 items-center transition-colors hover:text-primary"
-                  href="/register-provider"
-                  prefetch={false}
-                >
-                  Register Provider
-                </Link>
-              </li>
-              <li>
-                <SignInButton mode="redirect">
-                  <button
+            {useE2eMockAuth ? (
+              <>
+                <li>
+                  <Link
+                    className="inline-flex min-h-8 items-center transition-colors hover:text-primary"
+                    href="/register-provider"
+                    prefetch={false}
+                  >
+                    Register Provider
+                  </Link>
+                </li>
+                <li>
+                  <Link
                     className="inline-flex min-h-8 items-center font-semibold text-primary transition-colors hover:text-primary-dark"
-                    type="button"
+                    href="/sign-in"
+                    prefetch={false}
                   >
                     Sign In
-                  </button>
-                </SignInButton>
-              </li>
-            </SignedOut>
-            <SignedIn>
-              <li>
-                <Link
-                  className="inline-flex min-h-8 items-center transition-colors hover:text-primary"
-                  href="/dashboard"
-                  prefetch={false}
-                >
-                  Dashboard
-                </Link>
-              </li>
-              <li>
-                <Link
-                  className="inline-flex min-h-8 items-center transition-colors hover:text-primary"
-                  href="/register-provider"
-                  prefetch={false}
-                >
-                  Register Provider
-                </Link>
-              </li>
-              <li>
-                <UserButton afterSignOutUrl="/" />
-              </li>
-            </SignedIn>
+                  </Link>
+                </li>
+              </>
+            ) : (
+              <>
+                <SignedOut>
+                  <li>
+                    <Link
+                      className="inline-flex min-h-8 items-center transition-colors hover:text-primary"
+                      href="/register-provider"
+                      prefetch={false}
+                    >
+                      Register Provider
+                    </Link>
+                  </li>
+                  <li>
+                    <SignInButton mode="redirect">
+                      <button
+                        className="inline-flex min-h-8 items-center font-semibold text-primary transition-colors hover:text-primary-dark"
+                        type="button"
+                      >
+                        Sign In
+                      </button>
+                    </SignInButton>
+                  </li>
+                </SignedOut>
+                <SignedIn>
+                  <li>
+                    <Link
+                      className="inline-flex min-h-8 items-center transition-colors hover:text-primary"
+                      href="/dashboard"
+                      prefetch={false}
+                    >
+                      Dashboard
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      className="inline-flex min-h-8 items-center transition-colors hover:text-primary"
+                      href="/register-provider"
+                      prefetch={false}
+                    >
+                      Register Provider
+                    </Link>
+                  </li>
+                  <li>
+                    <UserButton afterSignOutUrl="/" />
+                  </li>
+                </SignedIn>
+              </>
+            )}
           </ul>
         </nav>
       </div>

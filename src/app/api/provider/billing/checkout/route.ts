@@ -6,6 +6,11 @@ import {
   STRIPE_BILLING_SETUP_ERROR,
 } from "@/lib/payments/stripe";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import {
+  getE2eAuthenticatedProvider,
+  getE2eCheckoutUrl,
+  isE2eMockMode,
+} from "@/lib/testing/e2e-mocks";
 import type { ListingTier } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -49,6 +54,38 @@ function getPriceId(tier: CheckoutTier) {
 }
 
 export async function POST(request: NextRequest) {
+  if (isE2eMockMode()) {
+    const { authenticated, provider } = getE2eAuthenticatedProvider(request);
+
+    if (!authenticated) {
+      return jsonResponse({ success: false, error: "Unauthenticated." }, 401);
+    }
+
+    if (!provider) {
+      return jsonResponse(
+        {
+          success: false,
+          error: "Please register your provider profile first.",
+        },
+        404,
+      );
+    }
+
+    const payload = (await request.json()) as { tier?: unknown };
+
+    if (!isCheckoutTier(payload.tier)) {
+      return jsonResponse(
+        { success: false, error: "Select Standard or Premium to upgrade." },
+        400,
+      );
+    }
+
+    return jsonResponse<{ checkout_url: string }>({
+      success: true,
+      data: { checkout_url: getE2eCheckoutUrl(payload.tier) },
+    });
+  }
+
   try {
     const { userId } = await auth();
 
