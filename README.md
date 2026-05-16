@@ -10,7 +10,7 @@ git@github.com:SaiAkhil2003/careconnect-india.git
 
 ## MVP Purpose
 
-The MVP validates whether families can discover aged care providers inside a selected city and submit enquiries, while providers can receive leads and manage a public profile. Current provider data includes sample/demo listings only. Real launch requires at least 2 active cities, 50+ verified real providers, provider consent, and manual founder QA city by city before production rollout.
+The MVP validates whether families can discover aged care providers inside a selected city and submit enquiries, while providers can receive leads and manage a public profile. Current provider data includes sample/demo listings only for UI testing, search testing, city activation demos, and stakeholder review. Real launch requires manual provider collection, consent, verification, Supabase admin approval, at least 2 active cities, 50+ verified real providers, and founder QA city by city before production rollout.
 
 ## City-Aware Search
 
@@ -247,7 +247,7 @@ Keep `supabase/seed-demo-activate-pan-india-cities.sql` separate from the main c
 
 ### Real Provider Sourcing and Verification
 
-Demo data is only for testing. Real provider data must come from verified and consent-based onboarding. Online directories may be used only for lead discovery and market mapping; they must not be treated as verified data or copied into production without direct verification.
+Demo data is only for testing and stakeholder review. Real provider data must come from manual collection, provider consent, verification, and Supabase admin approval. Online directories may be used only for lead discovery and market mapping; they must not be treated as verified data or copied into production without direct verification.
 
 Use these workflow files before importing real providers:
 
@@ -256,7 +256,13 @@ Use these workflow files before importing real providers:
 - `docs/PROVIDER_VERIFICATION_CALL_SCRIPT.md`
 - `docs/PROVIDER_LISTING_CONSENT_TEXT.md`
 - `docs/REAL_PROVIDER_IMPORT_CHECKLIST.md`
+- `docs/REAL_PROVIDER_VERIFICATION_PROCESS.md`
+- `docs/SUPABASE_PROVIDER_ADMIN_GUIDE.md`
+- `docs/PROVIDER_DATA_QUALITY_RULES.md`
 - `supabase/provider-import-template.csv`
+- `supabase/provider-import-staging-notes.sql`
+
+Admin still uses Supabase Studio in the MVP. Real launch should activate verified providers city by city; demo providers are not real provider coverage.
 
 Providers should not be published unless contact details, service coverage, consent, and admin approval are complete. The recommended launch path is city-by-city real provider onboarding, starting with Visakhapatnam and Bengaluru, then Hyderabad, Chennai, Mumbai, Delhi, Pune, and Kochi.
 

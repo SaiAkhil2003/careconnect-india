@@ -4,7 +4,7 @@
 
 CareConnect India MVP v1.2 is an aged care provider discovery platform aligned to the final pan-India city-aware brief. Families select or auto-detect an active city first, then search city-scoped providers by service, area/suburb, language, verified status, and listing tier. Providers register under one active city. City activation, provider approval, and verification remain manual through Supabase Studio.
 
-The MVP supports Stripe, Resend, and Twilio WhatsApp foundations, but local integrations can remain unconfigured. Current data includes sample/demo providers for testing only. Real launch requires production credentials, storage setup, staging QA, at least 2 active cities, 50+ verified real providers, and verified provider onboarding with consent city by city.
+The MVP supports Stripe, Resend, and Twilio WhatsApp foundations, but local integrations can remain unconfigured. Current data includes sample/demo providers for UI testing, search testing, city activation demos, and stakeholder review only. Real launch requires production credentials, storage setup, staging QA, manual provider collection, consent, verification, Supabase admin approval, at least 2 active cities, 50+ verified real providers, and verified provider onboarding city by city.
 
 ## Developer Brief Compliance Matrix
 
@@ -154,7 +154,7 @@ Admin via Supabase Studio:
 
 A demo provider seed exists for almost every city/place in `public.cities`. Normal cities receive multiple demo provider types, and major cities receive demo providers across all supported service types. Demo providers are not real providers.
 
-Demo data is only for UI testing, search testing, city activation demos, and stakeholder review. Real launch requires verified provider onboarding, provider consent, and admin approval. All-city activation is demo only, and production should activate cities only after real provider coverage exists.
+Demo data is only for UI testing, search testing, city activation demos, and stakeholder review. Real launch requires manual provider collection, verified provider onboarding, provider consent, and Supabase admin approval. All-city activation is demo only, and production should activate cities only after real provider coverage exists.
 
 Manual demo data steps:
 
@@ -166,7 +166,7 @@ Safe MVP mode keeps only Bengaluru and Visakhapatnam active by default. Full dem
 
 ## Real Provider Sourcing and Verification
 
-Demo data is only for testing. Real provider data must come from verified and consent-based onboarding. Online directories are lead discovery sources only; directory data should not be presented as verified provider data.
+Demo data is only for testing and stakeholder review. Real provider data must come from manual collection, verified and consent-based onboarding, and Supabase admin approval. Online directories are lead discovery sources only; directory data should not be presented as verified provider data.
 
 The real provider onboarding workflow is documented in:
 
@@ -175,7 +175,11 @@ The real provider onboarding workflow is documented in:
 - `docs/PROVIDER_VERIFICATION_CALL_SCRIPT.md`
 - `docs/PROVIDER_LISTING_CONSENT_TEXT.md`
 - `docs/REAL_PROVIDER_IMPORT_CHECKLIST.md`
+- `docs/REAL_PROVIDER_VERIFICATION_PROCESS.md`
+- `docs/SUPABASE_PROVIDER_ADMIN_GUIDE.md`
+- `docs/PROVIDER_DATA_QUALITY_RULES.md`
 - `supabase/provider-import-template.csv`
+- `supabase/provider-import-staging-notes.sql`
 
 Providers should not be published unless the provider name, city, services, contact details, consent, and admin approval have been recorded. The recommended launch path is city-by-city real provider onboarding.
 
