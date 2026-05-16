@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
-  sendFamilyEnquiryConfirmation,
+  sendAdminLeadNotificationEmail,
+  sendFamilyAcknowledgementEmail,
   sendProviderLeadEmail,
 } from "@/lib/notifications/email";
 import { sendProviderWhatsAppLead } from "@/lib/notifications/whatsapp";
@@ -30,6 +31,7 @@ type ProviderForDelivery = Pick<
   Provider,
   | "id"
   | "provider_name"
+  | "city"
   | "email"
   | "lead_email"
   | "lead_whatsapp"
@@ -41,6 +43,15 @@ type DeliverySummary = {
   provider_email_attempted: boolean;
   whatsapp_attempted: boolean;
   provider_delivery_success: boolean;
+};
+
+type DeliveryChannelStatus = "sent" | "skipped" | "failed";
+
+type DeliveryDetails = {
+  dashboard: true;
+  provider_email: DeliveryChannelStatus;
+  family_email: DeliveryChannelStatus;
+  admin_email: DeliveryChannelStatus;
 };
 
 function jsonResponse<T>(
@@ -68,10 +79,6 @@ function optionalString(value: unknown) {
   return trimmed.length > 0 ? trimmed : null;
 }
 
-function getProviderLeadEmail(provider: ProviderForDelivery) {
-  return provider.lead_email ?? provider.email;
-}
-
 function getDeliveryMethod(
   emailDelivered: boolean,
   whatsappDelivered: boolean,
@@ -89,6 +96,10 @@ function getDeliveryMethod(
   }
 
   return null;
+}
+
+function getSafeErrorName(error: unknown) {
+  return error instanceof Error ? error.name : "UnknownError";
 }
 
 export async function POST(request: NextRequest) {
@@ -165,10 +176,17 @@ export async function POST(request: NextRequest) {
         whatsapp_attempted: false,
         provider_delivery_success: false,
       };
+      const delivery: DeliveryDetails = {
+        dashboard: true,
+        provider_email: "skipped",
+        family_email: "skipped",
+        admin_email: "skipped",
+      };
 
       return jsonResponse<{
         enquiry: Enquiry;
         delivery_summary: DeliverySummary;
+        delivery: DeliveryDetails;
       }>({
         success: true,
         data: {
@@ -181,6 +199,7 @@ export async function POST(request: NextRequest) {
             message,
           }),
           delivery_summary: deliverySummary,
+          delivery,
         },
       });
     }
@@ -188,7 +207,9 @@ export async function POST(request: NextRequest) {
     const supabase = createSupabaseServerClient();
     const { data: provider, error: providerError } = await supabase
       .from("providers")
-      .select("id, provider_name, email, lead_email, lead_whatsapp, listing_tier")
+      .select(
+        "id, provider_name, city, email, lead_email, lead_whatsapp, listing_tier",
+      )
       .eq("id", providerId)
       .eq("is_active", true)
       .maybeSingle();
@@ -246,36 +267,63 @@ export async function POST(request: NextRequest) {
       whatsapp_attempted: false,
       provider_delivery_success: false,
     };
+    const delivery: DeliveryDetails = {
+      dashboard: true,
+      provider_email: "skipped",
+      family_email: "skipped",
+      admin_email: "skipped",
+    };
     const providerForDelivery = provider as ProviderForDelivery;
 
     if (familyEmail) {
-      await sendFamilyEnquiryConfirmation({
-        family_email: familyEmail,
-        family_name: familyName,
-        provider_name: providerForDelivery.provider_name,
-        service_needed: serviceNeeded,
-      });
+      try {
+        const familyEmailResult = await sendFamilyAcknowledgementEmail({
+          family_email: familyEmail,
+          family_name: familyName,
+          provider_name: providerForDelivery.provider_name,
+          service_needed: serviceNeeded,
+        });
+
+        delivery.family_email = familyEmailResult.status;
+      } catch (error) {
+        console.error(
+          `Family acknowledgement email failed after enquiry save: ${getSafeErrorName(error)}`,
+        );
+        delivery.family_email = "failed";
+      }
     }
 
-    const providerLeadEmail = getProviderLeadEmail(providerForDelivery);
     const shouldSendProviderEmail =
       (providerForDelivery.listing_tier === "standard" ||
         providerForDelivery.listing_tier === "premium") &&
-      Boolean(providerLeadEmail);
+      Boolean(providerForDelivery.lead_email);
 
     let providerEmailDelivered = false;
 
     if (shouldSendProviderEmail) {
       deliverySummary.provider_email_attempted = true;
-      providerEmailDelivered = await sendProviderLeadEmail({
-        lead_email: providerLeadEmail,
-        provider_name: providerForDelivery.provider_name,
-        family_name: familyName,
-        family_phone: familyPhone,
-        family_email: familyEmail,
-        service_needed: serviceNeeded,
-        message,
-      });
+
+      try {
+        const providerEmailResult = await sendProviderLeadEmail({
+          lead_email: providerForDelivery.lead_email,
+          provider_name: providerForDelivery.provider_name,
+          city: providerForDelivery.city,
+          family_name: familyName,
+          family_phone: familyPhone,
+          family_email: familyEmail,
+          service_needed: serviceNeeded,
+          message,
+          submitted_at: enquiry.created_at,
+        });
+
+        delivery.provider_email = providerEmailResult.status;
+        providerEmailDelivered = providerEmailResult.success;
+      } catch (error) {
+        console.error(
+          `Provider lead email failed after enquiry save: ${getSafeErrorName(error)}`,
+        );
+        delivery.provider_email = "failed";
+      }
     }
 
     const shouldSendWhatsApp =
@@ -285,19 +333,58 @@ export async function POST(request: NextRequest) {
 
     if (shouldSendWhatsApp) {
       deliverySummary.whatsapp_attempted = true;
-      whatsappDelivered = await sendProviderWhatsAppLead({
-        listing_tier: providerForDelivery.listing_tier,
-        lead_whatsapp: providerForDelivery.lead_whatsapp,
-        provider_name: providerForDelivery.provider_name,
-        family_name: familyName,
-        family_phone: familyPhone,
-        service_needed: serviceNeeded,
-        message,
-      });
+
+      try {
+        whatsappDelivered = await sendProviderWhatsAppLead({
+          listing_tier: providerForDelivery.listing_tier,
+          lead_whatsapp: providerForDelivery.lead_whatsapp,
+          provider_name: providerForDelivery.provider_name,
+          family_name: familyName,
+          family_phone: familyPhone,
+          service_needed: serviceNeeded,
+          message,
+        });
+      } catch (error) {
+        console.error(
+          `Provider WhatsApp delivery failed after enquiry save: ${getSafeErrorName(error)}`,
+        );
+      }
     }
 
     deliverySummary.provider_delivery_success =
       providerEmailDelivered || whatsappDelivered;
+
+    try {
+      let whatsappDeliveryStatus: DeliveryChannelStatus = "skipped";
+
+      if (whatsappDelivered) {
+        whatsappDeliveryStatus = "sent";
+      } else if (deliverySummary.whatsapp_attempted) {
+        whatsappDeliveryStatus = "failed";
+      }
+
+      const adminEmailResult = await sendAdminLeadNotificationEmail({
+        provider_name: providerForDelivery.provider_name,
+        provider_city: providerForDelivery.city,
+        listing_tier: providerForDelivery.listing_tier,
+        family_name: familyName,
+        family_phone: familyPhone,
+        service_needed: serviceNeeded,
+        message,
+        lead_delivery_result: [
+          `provider_email=${delivery.provider_email}`,
+          `family_email=${delivery.family_email}`,
+          `whatsapp=${whatsappDeliveryStatus}`,
+        ].join(", "),
+      });
+
+      delivery.admin_email = adminEmailResult.status;
+    } catch (error) {
+      console.error(
+        `Admin lead notification email failed after enquiry save: ${getSafeErrorName(error)}`,
+      );
+      delivery.admin_email = "failed";
+    }
 
     const deliveryMethod = getDeliveryMethod(
       providerEmailDelivered,
@@ -330,11 +417,13 @@ export async function POST(request: NextRequest) {
     return jsonResponse<{
       enquiry: Enquiry;
       delivery_summary: DeliverySummary;
+      delivery: DeliveryDetails;
     }>({
       success: true,
       data: {
         enquiry: savedEnquiry,
         delivery_summary: deliverySummary,
+        delivery,
       },
     });
   } catch (error) {

@@ -55,7 +55,7 @@ The MVP validates whether families can discover aged care providers inside a sel
 - Standard/Premium analytics page access
 - Billing page with Free, Standard, and Premium plan cards
 - Stripe Checkout API and webhook foundation
-- Resend family confirmation and provider lead alert foundation
+- Safe Resend family acknowledgement and Standard/Premium provider lead alert delivery
 - Optional Twilio WhatsApp lead alert foundation for Premium providers
 - Admin approval through Supabase Studio
 
@@ -140,9 +140,9 @@ STRIPE_WEBHOOK_SECRET=
 STRIPE_STANDARD_PRICE_ID=
 STRIPE_PREMIUM_PRICE_ID=
 
-RESEND_API_KEY=
-RESEND_FROM_EMAIL=
-PLATFORM_ADMIN_EMAIL=
+RESEND_API_KEY=your_resend_api_key
+RESEND_FROM_EMAIL=CareConnect India <leads@yourdomain.com>
+PLATFORM_ADMIN_EMAIL=admin@example.com
 
 TWILIO_ACCOUNT_SID=
 TWILIO_AUTH_TOKEN=
@@ -348,11 +348,16 @@ The webhook updates provider billing fields and `listing_tier`. It does not appr
 ## Resend Setup
 
 1. Create a Resend account.
-2. Add `RESEND_API_KEY`.
-3. Add a verified sender or test sender.
-4. Add `RESEND_FROM_EMAIL`.
+2. Add a sending domain.
+3. Verify SPF and DKIM records for the sending domain.
+4. Create a Resend API key.
+5. Add `RESEND_API_KEY` locally and in Vercel.
+6. Add `RESEND_FROM_EMAIL`, for example `CareConnect India <leads@yourdomain.com>`.
+7. Add `PLATFORM_ADMIN_EMAIL` if admin lead notification copies should be sent.
+8. Use a verified sender or verified domain in production.
+9. Test with one real controlled email address before public use.
 
-Email delivery is skipped when Resend is not configured. Enquiry creation still succeeds.
+Email delivery is skipped when Resend is not configured. Enquiry creation still succeeds. Provider lead emails are sent only for Standard and Premium providers with `lead_email` configured. Free provider leads remain dashboard-only. Demo `@example.com` addresses are skipped to avoid sending test data.
 
 ## Twilio WhatsApp Setup
 

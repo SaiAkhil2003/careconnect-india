@@ -31,7 +31,7 @@ The MVP supports Stripe, Resend, and Twilio WhatsApp foundations, but local inte
 | Standard listing plan | Complete | Priority, email lead alert foundation, analytics, logo, verified eligibility. |
 | Premium listing plan | Complete | Highest priority, highlighted search card, email and WhatsApp foundation, analytics, logo, verified eligibility. |
 | Stripe billing foundation | Complete | Checkout and webhook APIs implemented. Requires Stripe setup. |
-| Resend email foundation | Complete | Family and provider email helpers implemented. Requires Resend setup. |
+| Resend email lead delivery | Complete | Family acknowledgement, Standard/Premium provider lead email, admin copy, safe skips, and non-blocking failures implemented. Requires Resend setup. |
 | Twilio WhatsApp foundation | Complete | Premium WhatsApp helper implemented. Requires Twilio setup. |
 | No online booking | Complete | Intentionally excluded. |
 | No appointment scheduling | Complete | Intentionally excluded. |
@@ -84,7 +84,7 @@ Enquiry flow:
 - Public family enquiry form
 - Enquiry saving
 - Analytics count update
-- Resend confirmation/provider email attempts after save
+- Resend family acknowledgement and Standard/Premium provider email attempts after save
 - Twilio WhatsApp attempt for Premium providers after save
 - Delivery status update when provider delivery succeeds
 
@@ -122,7 +122,9 @@ Billing foundation:
 
 Email/WhatsApp foundation:
 
-- Resend server-only helper
+- Resend server-only helper with safe skip/failure results
+- Free providers remain dashboard-only; Standard/Premium provider lead emails require `lead_email`
+- Demo `@example.com` email addresses are skipped
 - Twilio server-only helper
 - Failures do not block enquiry creation
 
@@ -200,7 +202,7 @@ Per launch city, target 10 home care providers, 5 senior living or assisted livi
 - Use source tracking, verification scripts, consent wording, and the import checklist before publishing real providers.
 - Create Stripe account, products, prices, and webhook.
 - Add Stripe environment variables in Vercel.
-- Configure Resend API key, sender, and production domain.
+- Configure Resend API key, verified sender/domain, and production DNS records.
 - Configure Twilio WhatsApp Sandbox or production WhatsApp sender.
 - Create Supabase Storage bucket `provider-logos`.
 - Rotate Supabase service role key before production.

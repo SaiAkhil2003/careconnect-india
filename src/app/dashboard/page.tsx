@@ -77,7 +77,7 @@ async function getDashboardData() {
 
 function getLeadDeliveryStatus(provider: Provider) {
   const plan = getListingPlan(provider.listing_tier);
-  const hasLeadEmail = Boolean(provider.lead_email ?? provider.email);
+  const hasLeadEmail = Boolean(provider.lead_email);
   const hasLeadWhatsApp = Boolean(provider.lead_whatsapp);
 
   if (plan.tier === "premium") {
