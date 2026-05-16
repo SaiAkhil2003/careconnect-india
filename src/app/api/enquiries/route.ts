@@ -4,7 +4,7 @@ import {
   sendFamilyAcknowledgementEmail,
   sendProviderLeadEmail,
 } from "@/lib/notifications/email";
-import { sendProviderWhatsAppLead } from "@/lib/notifications/whatsapp";
+import { sendProviderWhatsAppLeadAlert } from "@/lib/notifications/whatsapp";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import {
   createE2eMockEnquiry,
@@ -52,6 +52,7 @@ type DeliveryDetails = {
   provider_email: DeliveryChannelStatus;
   family_email: DeliveryChannelStatus;
   admin_email: DeliveryChannelStatus;
+  provider_whatsapp: DeliveryChannelStatus;
 };
 
 function jsonResponse<T>(
@@ -181,6 +182,7 @@ export async function POST(request: NextRequest) {
         provider_email: "skipped",
         family_email: "skipped",
         admin_email: "skipped",
+        provider_whatsapp: "skipped",
       };
 
       return jsonResponse<{
@@ -272,6 +274,7 @@ export async function POST(request: NextRequest) {
       provider_email: "skipped",
       family_email: "skipped",
       admin_email: "skipped",
+      provider_whatsapp: "skipped",
     };
     const providerForDelivery = provider as ProviderForDelivery;
 
@@ -328,26 +331,39 @@ export async function POST(request: NextRequest) {
 
     const shouldSendWhatsApp =
       providerForDelivery.listing_tier === "premium" &&
-      Boolean(providerForDelivery.lead_whatsapp);
+      Boolean(providerForDelivery.lead_whatsapp?.trim());
     let whatsappDelivered = false;
 
     if (shouldSendWhatsApp) {
-      deliverySummary.whatsapp_attempted = true;
-
       try {
-        whatsappDelivered = await sendProviderWhatsAppLead({
-          listing_tier: providerForDelivery.listing_tier,
-          lead_whatsapp: providerForDelivery.lead_whatsapp,
-          provider_name: providerForDelivery.provider_name,
-          family_name: familyName,
-          family_phone: familyPhone,
-          service_needed: serviceNeeded,
+        const whatsappResult = await sendProviderWhatsAppLeadAlert({
+          providerName: providerForDelivery.provider_name,
+          providerCity: providerForDelivery.city,
+          providerEmail: providerForDelivery.email,
+          leadEmail: providerForDelivery.lead_email,
+          listingTier: providerForDelivery.listing_tier,
+          leadWhatsapp: providerForDelivery.lead_whatsapp,
+          familyName,
+          familyPhone,
+          familyEmail,
+          serviceNeeded,
           message,
+          submittedAt: enquiry.created_at,
         });
+
+        deliverySummary.whatsapp_attempted = !whatsappResult.skipped;
+        whatsappDelivered = whatsappResult.success;
+        delivery.provider_whatsapp = whatsappResult.success
+          ? "sent"
+          : whatsappResult.skipped
+            ? "skipped"
+            : "failed";
       } catch (error) {
         console.error(
           `Provider WhatsApp delivery failed after enquiry save: ${getSafeErrorName(error)}`,
         );
+        deliverySummary.whatsapp_attempted = true;
+        delivery.provider_whatsapp = "failed";
       }
     }
 
@@ -355,14 +371,6 @@ export async function POST(request: NextRequest) {
       providerEmailDelivered || whatsappDelivered;
 
     try {
-      let whatsappDeliveryStatus: DeliveryChannelStatus = "skipped";
-
-      if (whatsappDelivered) {
-        whatsappDeliveryStatus = "sent";
-      } else if (deliverySummary.whatsapp_attempted) {
-        whatsappDeliveryStatus = "failed";
-      }
-
       const adminEmailResult = await sendAdminLeadNotificationEmail({
         provider_name: providerForDelivery.provider_name,
         provider_city: providerForDelivery.city,
@@ -374,7 +382,7 @@ export async function POST(request: NextRequest) {
         lead_delivery_result: [
           `provider_email=${delivery.provider_email}`,
           `family_email=${delivery.family_email}`,
-          `whatsapp=${whatsappDeliveryStatus}`,
+          `provider_whatsapp=${delivery.provider_whatsapp}`,
         ].join(", "),
       });
 

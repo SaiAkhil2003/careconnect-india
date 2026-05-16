@@ -32,7 +32,7 @@ The MVP supports Stripe, Resend, and Twilio WhatsApp foundations, but local inte
 | Premium listing plan | Complete | Highest priority, highlighted search card, email and WhatsApp foundation, analytics, logo, verified eligibility. |
 | Stripe billing foundation | Complete | Checkout and webhook APIs implemented. Requires Stripe setup. |
 | Resend email lead delivery | Complete | Family acknowledgement, Standard/Premium provider lead email, admin copy, safe skips, and non-blocking failures implemented. Requires Resend setup. |
-| Twilio WhatsApp foundation | Complete | Premium WhatsApp helper implemented. Requires Twilio setup. |
+| Twilio WhatsApp lead delivery | Complete | Premium-only Twilio WhatsApp provider lead alerts implemented with demo/fake-recipient safety. Requires Twilio setup. |
 | No online booking | Complete | Intentionally excluded. |
 | No appointment scheduling | Complete | Intentionally excluded. |
 | No in-app chat | Complete | Intentionally excluded. |
@@ -85,7 +85,7 @@ Enquiry flow:
 - Enquiry saving
 - Analytics count update
 - Resend family acknowledgement and Standard/Premium provider email attempts after save
-- Twilio WhatsApp attempt for Premium providers after save
+- Twilio WhatsApp provider lead alert for Premium providers after save
 - Delivery status update when provider delivery succeeds
 
 Provider auth:
@@ -126,6 +126,8 @@ Email/WhatsApp foundation:
 - Free providers remain dashboard-only; Standard/Premium provider lead emails require `lead_email`
 - Demo `@example.com` email addresses are skipped
 - Twilio server-only helper
+- WhatsApp is skipped for Free and Standard providers, missing `lead_whatsapp`, demo/sample providers, `@example.com` contacts, and fake `90000` WhatsApp numbers
+- Twilio uses `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, and `TWILIO_WHATSAPP_FROM=whatsapp:+14155238886`
 - Failures do not block enquiry creation
 
 Admin via Supabase Studio:
@@ -203,7 +205,7 @@ Per launch city, target 10 home care providers, 5 senior living or assisted livi
 - Create Stripe account, products, prices, and webhook.
 - Add Stripe environment variables in Vercel.
 - Configure Resend API key, verified sender/domain, and production DNS records.
-- Configure Twilio WhatsApp Sandbox or production WhatsApp sender.
+- Configure Twilio WhatsApp Sandbox, join the receiving phone to the sandbox, or configure a production WhatsApp sender.
 - Create Supabase Storage bucket `provider-logos`.
 - Rotate Supabase service role key before production.
 - Deploy Vercel preview.
@@ -243,7 +245,7 @@ Launch readiness:
 - Configure Stripe webhook endpoint:
   - `https://your-vercel-domain/api/webhooks/stripe`
 - Configure Resend sender and test delivery.
-- Configure Twilio WhatsApp sender and test delivery.
+- Configure Twilio WhatsApp sender and test delivery with one controlled Premium provider number.
 - Deploy Vercel preview from:
   - `git@github.com:SaiAkhil2003/careconnect-india.git`
 - Set `NEXT_PUBLIC_APP_URL` to the Vercel domain.

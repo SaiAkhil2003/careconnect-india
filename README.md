@@ -146,7 +146,7 @@ PLATFORM_ADMIN_EMAIL=admin@example.com
 
 TWILIO_ACCOUNT_SID=
 TWILIO_AUTH_TOKEN=
-TWILIO_WHATSAPP_FROM=
+TWILIO_WHATSAPP_FROM=whatsapp:+14155238886
 
 NEXT_PUBLIC_APP_URL=
 ```
@@ -362,13 +362,18 @@ Email delivery is skipped when Resend is not configured. Enquiry creation still 
 ## Twilio WhatsApp Setup
 
 1. Create a Twilio account.
-2. Use WhatsApp Sandbox for MVP testing.
-3. Add `TWILIO_ACCOUNT_SID`.
-4. Add `TWILIO_AUTH_TOKEN`.
-5. Add `TWILIO_WHATSAPP_FROM`.
-6. Test with a sandbox-approved recipient.
+2. Enable the Twilio WhatsApp Sandbox for MVP testing.
+3. Join the sandbox from the receiving phone before testing.
+4. Add `TWILIO_ACCOUNT_SID` locally and in Vercel.
+5. Add `TWILIO_AUTH_TOKEN` locally and in Vercel.
+6. Add `TWILIO_WHATSAPP_FROM=whatsapp:+14155238886` locally and in Vercel.
+7. Use one controlled test provider with your own WhatsApp number.
+8. Set the provider `lead_whatsapp` in `whatsapp:+91XXXXXXXXXX` format, or as `+91XXXXXXXXXX` so the app can add the prefix.
+9. Test only after confirming the recipient joined the sandbox.
 
-WhatsApp lead delivery runs only for Premium providers with `lead_whatsapp` set.
+WhatsApp lead delivery runs only for Premium providers with `lead_whatsapp` set. Free and Standard providers remain dashboard-only or email-only according to their plan. Demo/sample providers, `@example.com` test contacts, and fake `90000` WhatsApp numbers are skipped safely. Enquiry saving still succeeds if WhatsApp is skipped or fails.
+
+Production WhatsApp messaging may require approved templates and a verified WhatsApp Business sender. Twilio is used first for MVP testing; production can switch to 360dialog or the Meta WhatsApp Business API later if required.
 
 ## Manual Testing Checklist
 
