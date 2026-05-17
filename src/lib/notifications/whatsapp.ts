@@ -108,6 +108,7 @@ function isDemoWhatsAppLead(input: ProviderWhatsAppLeadAlertInput) {
     providerName.includes("sample") ||
     isExampleEmail(input.providerEmail) ||
     isExampleEmail(input.leadEmail) ||
+    isExampleEmail(input.familyEmail) ||
     leadWhatsapp.includes("90000")
   );
 }
@@ -125,6 +126,14 @@ function getTwilioSetup() {
     client: twilio(accountSid, authToken),
     from: formatWhatsAppAddress(from),
   };
+}
+
+function logWhatsAppSkipped(reason: string) {
+  console.info(`Provider WhatsApp lead alert skipped: ${reason}`);
+}
+
+function logWhatsAppSent() {
+  console.info("Provider WhatsApp lead alert sent: provider=twilio");
 }
 
 function logWhatsAppFailure(error: unknown) {
@@ -145,7 +154,7 @@ function logWhatsAppFailure(error: unknown) {
       : "unknown";
 
   console.error(
-    `Provider WhatsApp lead alert failed (${errorName}, code=${errorCode}, status=${errorStatus})`,
+    `Provider WhatsApp lead alert failed: provider=twilio reason=WHATSAPP_SEND_FAILED error=${errorName} code=${errorCode} status=${errorStatus}`,
   );
 }
 
@@ -153,20 +162,24 @@ export async function sendProviderWhatsAppLeadAlert(
   input: ProviderWhatsAppLeadAlertInput,
 ): Promise<WhatsAppDeliveryResult> {
   if (input.listingTier !== "premium") {
+    logWhatsAppSkipped("NON_PREMIUM_PROVIDER");
     return skippedNotConfigured;
   }
 
   if (isDemoWhatsAppLead(input)) {
+    logWhatsAppSkipped("DEMO_WHATSAPP");
     return skippedDemoWhatsApp;
   }
 
   if (!input.leadWhatsapp?.trim()) {
+    logWhatsAppSkipped("LEAD_WHATSAPP_MISSING");
     return skippedNotConfigured;
   }
 
   const setup = getTwilioSetup();
 
   if (!setup) {
+    logWhatsAppSkipped("TWILIO_NOT_CONFIGURED");
     return skippedNotConfigured;
   }
 
@@ -192,6 +205,8 @@ export async function sendProviderWhatsAppLeadAlert(
         "This lead was generated through CareConnect India.",
       ].join("\n"),
     });
+
+    logWhatsAppSent();
 
     return {
       success: true,

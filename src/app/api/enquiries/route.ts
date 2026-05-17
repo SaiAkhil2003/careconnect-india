@@ -365,6 +365,10 @@ export async function POST(request: NextRequest) {
         deliverySummary.whatsapp_attempted = true;
         delivery.provider_whatsapp = "failed";
       }
+    } else if (providerForDelivery.listing_tier === "premium") {
+      console.info(
+        "Provider WhatsApp lead alert skipped: LEAD_WHATSAPP_MISSING",
+      );
     }
 
     deliverySummary.provider_delivery_success =
