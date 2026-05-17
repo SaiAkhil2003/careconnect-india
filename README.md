@@ -327,23 +327,28 @@ Provider logo storage is not configured yet.
 
 ## Stripe Setup
 
-1. Create a Stripe account.
-2. Create a Standard product and monthly recurring price for ₹1,999.
-3. Create a Premium product and monthly recurring price for ₹4,999.
-4. Add the price IDs:
+1. Create or open a Stripe account.
+2. Use Stripe test mode for MVP billing verification.
+3. Create a Standard product and monthly recurring price for ₹1,999.
+4. Create a Premium product and monthly recurring price for ₹4,999.
+5. Add the price IDs:
    - `STRIPE_STANDARD_PRICE_ID`
    - `STRIPE_PREMIUM_PRICE_ID`
-5. Add `STRIPE_SECRET_KEY`.
-6. Add `NEXT_PUBLIC_APP_URL`.
-7. Add webhook endpoint:
-   - Local or deployed URL ending in `/api/webhooks/stripe`
-8. Listen to:
+6. Add `STRIPE_SECRET_KEY`.
+7. Add `NEXT_PUBLIC_APP_URL`.
+8. Add webhook endpoint:
+   - `https://careconnect-india.vercel.app/api/webhooks/stripe` for the live Vercel site.
+   - Local Stripe CLI forwarding URL ending in `/api/webhooks/stripe` for local webhook tests.
+9. Listen to:
    - `checkout.session.completed`
    - `customer.subscription.updated`
    - `customer.subscription.deleted`
-9. Add `STRIPE_WEBHOOK_SECRET`.
+10. Add `STRIPE_WEBHOOK_SECRET`.
+11. Redeploy Vercel after adding or changing Stripe environment variables.
 
-The webhook updates provider billing fields and `listing_tier`. It does not approve or verify providers.
+The webhook updates provider billing fields and `listing_tier`. It does not approve, verify, activate, or deactivate providers. Deleted subscriptions downgrade the provider to Free and clear `stripe_subscription_id`; `stripe_customer_id` is retained for Stripe customer history. Use Stripe test cards only for MVP billing tests.
+
+Detailed billing test steps live in `docs/STRIPE_BILLING_TESTING.md`.
 
 ## Resend Setup
 
@@ -443,7 +448,7 @@ Expected:
 - Existing provider profile URLs still work.
 - Protected pages redirect to sign-in when signed out.
 - Billing page opens without Stripe keys when signed in.
-- Upgrade attempt without Stripe setup shows `Stripe billing is not configured yet.`
+- Upgrade attempt without Stripe setup shows `Stripe billing is not configured.`
 - Free providers see `Analytics are available on Standard and Premium plans.`
 - Logo upload without the bucket shows `Provider logo storage is not configured yet.`
 

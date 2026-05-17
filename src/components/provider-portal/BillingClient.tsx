@@ -13,7 +13,7 @@ type BillingClientProps = {
 };
 
 type CheckoutResponse =
-  | { success: true; data: { checkout_url: string } }
+  | { success: true; data: { url: string } }
   | { success: false; error: string };
 
 export function BillingClient({
@@ -69,7 +69,7 @@ export function BillingClient({
         );
       }
 
-      window.location.assign(result.data.checkout_url);
+      window.location.assign(result.data.url);
     } catch (error) {
       setErrorMessage(
         error instanceof Error ? error.message : "Unable to start checkout.",

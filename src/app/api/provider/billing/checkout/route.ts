@@ -16,6 +16,9 @@ import type { ListingTier } from "@/lib/types";
 export const dynamic = "force-dynamic";
 
 type CheckoutTier = Extract<ListingTier, "standard" | "premium">;
+type CheckoutResponseData = {
+  url: string;
+};
 
 const CHECKOUT_TIERS: CheckoutTier[] = ["standard", "premium"];
 
@@ -80,9 +83,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    return jsonResponse<{ checkout_url: string }>({
+    return jsonResponse<CheckoutResponseData>({
       success: true,
-      data: { checkout_url: getE2eCheckoutUrl(payload.tier) },
+      data: { url: getE2eCheckoutUrl(payload.tier) },
     });
   }
 
@@ -119,7 +122,7 @@ export async function POST(request: NextRequest) {
     if (!stripe || !priceId || !appUrl) {
       return jsonResponse(
         { success: false, error: STRIPE_BILLING_SETUP_ERROR },
-        503,
+        500,
       );
     }
 
@@ -150,7 +153,7 @@ export async function POST(request: NextRequest) {
     const metadata = {
       provider_id: provider.id,
       clerk_user_id: provider.clerk_user_id ?? userId,
-      target_tier: tier,
+      plan: tier,
     };
 
     const session = await stripe.checkout.sessions.create({
@@ -178,9 +181,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    return jsonResponse<{ checkout_url: string }>({
+    return jsonResponse<CheckoutResponseData>({
       success: true,
-      data: { checkout_url: session.url },
+      data: { url: session.url },
     });
   } catch (error) {
     console.error(

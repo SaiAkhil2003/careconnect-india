@@ -16,6 +16,7 @@ export const dynamic = "force-dynamic";
 type PaidListingTier = Extract<ListingTier, "standard" | "premium">;
 
 const PAID_LISTING_TIERS: PaidListingTier[] = ["standard", "premium"];
+const ACTIVE_SUBSCRIPTION_STATUSES = new Set(["active", "trialing"]);
 const DOWNGRADE_SUBSCRIPTION_STATUSES = new Set([
   "canceled",
   "unpaid",
@@ -64,7 +65,7 @@ async function handleCheckoutSessionCompleted(
   session: Stripe.Checkout.Session,
 ) {
   const providerId = session.metadata?.provider_id;
-  const targetTier = session.metadata?.target_tier;
+  const targetTier = session.metadata?.plan ?? session.metadata?.target_tier;
 
   if (!providerId || !isPaidListingTier(targetTier)) {
     console.error("Stripe checkout session missing provider billing metadata");
@@ -105,11 +106,16 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
   const priceId = subscription.items.data[0]?.price.id;
   const updates: Partial<Provider> = {};
 
-  if (subscription.status === "active") {
-    const tier = getTierForPriceId(priceId);
+  if (ACTIVE_SUBSCRIPTION_STATUSES.has(subscription.status)) {
+    const tier = getTierForPriceId(priceId) ?? subscription.metadata.plan;
 
     if (!tier) {
       console.error("Stripe subscription price did not match a listing plan");
+      return;
+    }
+
+    if (!isPaidListingTier(tier)) {
+      console.error("Stripe subscription metadata did not match a listing plan");
       return;
     }
 

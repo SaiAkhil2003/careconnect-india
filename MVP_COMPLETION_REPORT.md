@@ -30,7 +30,7 @@ The MVP supports Stripe, Resend, and Twilio WhatsApp foundations, but local inte
 | Free listing plan | Complete | Search and dashboard-only leads supported. |
 | Standard listing plan | Complete | Priority, email lead alert foundation, analytics, logo, verified eligibility. |
 | Premium listing plan | Complete | Highest priority, highlighted search card, email and WhatsApp foundation, analytics, logo, verified eligibility. |
-| Stripe billing foundation | Complete | Checkout and webhook APIs implemented. Requires Stripe setup. |
+| Stripe billing foundation | Complete | Checkout and webhook APIs implemented and hardened for test-mode validation. Requires Stripe setup. |
 | Resend email lead delivery | Complete | Family acknowledgement, Standard/Premium provider lead email, admin copy, safe skips, and non-blocking failures implemented. Requires Resend setup. |
 | Twilio WhatsApp lead delivery | Complete | Premium-only Twilio WhatsApp provider lead alerts implemented with demo/fake-recipient safety. Requires Twilio setup. |
 | No online booking | Complete | Intentionally excluded. |
@@ -119,6 +119,9 @@ Billing foundation:
 - Stripe Checkout API
 - Stripe webhook API
 - Clean missing-configuration handling
+- Test-mode billing workflow documented in `docs/STRIPE_BILLING_TESTING.md`
+- Stripe webhooks update `listing_tier`, `stripe_customer_id`, and `stripe_subscription_id` without changing `is_active` or `is_verified`
+- Deleted subscriptions downgrade providers to Free and clear `stripe_subscription_id` while retaining `stripe_customer_id`
 
 Email/WhatsApp foundation:
 
@@ -202,8 +205,9 @@ Per launch city, target 10 home care providers, 5 senior living or assisted livi
 - Onboard 50+ verified real providers before public launch.
 - Verify provider data quality, consent, and contact details.
 - Use source tracking, verification scripts, consent wording, and the import checklist before publishing real providers.
-- Create Stripe account, products, prices, and webhook.
+- Create Stripe test-mode products, prices, and webhook.
 - Add Stripe environment variables in Vercel.
+- Run Stripe test-mode Standard and Premium checkout validation.
 - Configure Resend API key, verified sender/domain, and production DNS records.
 - Configure Twilio WhatsApp Sandbox, join the receiving phone to the sandbox, or configure a production WhatsApp sender.
 - Create Supabase Storage bucket `provider-logos`.

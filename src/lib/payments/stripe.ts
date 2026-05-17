@@ -3,7 +3,7 @@ import "server-only";
 import Stripe from "stripe";
 
 export const STRIPE_BILLING_SETUP_ERROR =
-  "Stripe billing is not configured yet.";
+  "Stripe billing is not configured.";
 
 let stripeClient: Stripe | null = null;
 
