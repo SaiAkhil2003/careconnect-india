@@ -8,6 +8,7 @@ type PlanCardProps = {
   currentTier: ListingTier;
   pendingTier: ListingTier | null;
   onUpgrade: (tier: ListingTier) => void;
+  checkoutProviderLabel?: string;
 };
 
 export function PlanCard({
@@ -15,6 +16,7 @@ export function PlanCard({
   currentTier,
   pendingTier,
   onUpgrade,
+  checkoutProviderLabel = "checkout",
 }: PlanCardProps) {
   const isCurrent = currentTier === plan.tier;
   const isPaidPlan = plan.tier !== "free";
@@ -73,7 +75,7 @@ export function PlanCard({
                   ? "Starting checkout..."
                   : isPremiumCurrent
                     ? "Included in Premium"
-                    : `Upgrade to ${plan.label}`}
+                    : `Upgrade with ${checkoutProviderLabel}`}
             </button>
           ) : (
             <button

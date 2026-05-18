@@ -33,7 +33,8 @@ The MVP validates whether families can discover aged care providers inside a sel
 - Tailwind CSS
 - Supabase PostgreSQL and Storage
 - Clerk authentication
-- Stripe subscriptions
+- Razorpay subscriptions for India MVP billing
+- Stripe subscriptions foundation for future/global billing
 - Resend email
 - Twilio WhatsApp
 - Vercel deployment target
@@ -54,7 +55,8 @@ The MVP validates whether families can discover aged care providers inside a sel
 - Provider leads page
 - Standard/Premium analytics page access
 - Billing page with Free, Standard, and Premium plan cards
-- Stripe Checkout API and webhook foundation
+- Razorpay subscription checkout and webhook foundation for India MVP billing
+- Stripe Checkout API and webhook foundation kept for future/global billing
 - Safe Resend family acknowledgement and Standard/Premium provider lead alert delivery
 - Optional Twilio WhatsApp lead alert foundation for Premium providers
 - Admin approval through Supabase Studio
@@ -140,6 +142,13 @@ STRIPE_WEBHOOK_SECRET=
 STRIPE_STANDARD_PRICE_ID=
 STRIPE_PREMIUM_PRICE_ID=
 
+RAZORPAY_KEY_ID=
+RAZORPAY_KEY_SECRET=
+RAZORPAY_WEBHOOK_SECRET=
+RAZORPAY_STANDARD_PLAN_ID=
+RAZORPAY_PREMIUM_PLAN_ID=
+NEXT_PUBLIC_RAZORPAY_KEY_ID=
+
 RESEND_API_KEY=your_resend_api_key
 RESEND_FROM_EMAIL=CareConnect India <leads@yourdomain.com>
 PLATFORM_ADMIN_EMAIL=admin@example.com
@@ -151,7 +160,7 @@ TWILIO_WHATSAPP_FROM=whatsapp:+14155238886
 NEXT_PUBLIC_APP_URL=
 ```
 
-`npm run check-env` prints only `FOUND` or `MISSING`. Missing Stripe, Resend, Twilio, or `NEXT_PUBLIC_APP_URL` values do not fail the build.
+`npm run check-env` prints only `FOUND` or `MISSING`. Missing Stripe, Razorpay, Resend, Twilio, or `NEXT_PUBLIC_APP_URL` values do not fail the build.
 
 ## Local Setup
 
@@ -325,7 +334,44 @@ Provider logo storage is not configured yet.
    - `/sign-up`
 5. Confirm `/dashboard` and `/register-provider` require authentication.
 
+## Razorpay Setup
+
+Razorpay is the active India MVP billing path. Use Razorpay test mode only. Do not perform live payments for MVP validation.
+
+1. Create or open a Razorpay account.
+2. Enable test mode.
+3. Create a Standard monthly subscription plan for ₹1,999.
+4. Create a Premium monthly subscription plan for ₹4,999.
+5. Copy the plan IDs:
+   - `RAZORPAY_STANDARD_PLAN_ID`
+   - `RAZORPAY_PREMIUM_PLAN_ID`
+6. Add Razorpay environment variables locally and in Vercel:
+   - `RAZORPAY_KEY_ID`
+   - `RAZORPAY_KEY_SECRET`
+   - `RAZORPAY_WEBHOOK_SECRET`
+   - `RAZORPAY_STANDARD_PLAN_ID`
+   - `RAZORPAY_PREMIUM_PLAN_ID`
+   - `NEXT_PUBLIC_RAZORPAY_KEY_ID`
+7. Configure webhook endpoint:
+   - `https://careconnect-india.vercel.app/api/webhooks/razorpay`
+8. Add webhook events:
+   - `subscription.activated`
+   - `subscription.charged`
+   - `subscription.updated`
+   - `subscription.cancelled`
+   - `subscription.halted`
+   - `subscription.paused`
+   - `subscription.completed`
+   - `subscription.resumed`
+9. Redeploy Vercel after adding or changing Razorpay environment variables.
+
+The webhook updates `listing_tier` only. It does not approve, verify, activate, or deactivate providers. Razorpay subscription IDs are not stored in the current schema; webhook processing uses the provider metadata attached to the subscription.
+
+Detailed billing test steps live in `docs/RAZORPAY_BILLING_TESTING.md`.
+
 ## Stripe Setup
+
+Stripe billing code is kept for future/global payment support. Stripe India setup is paused for the MVP because Stripe India onboarding is invite-based and currently needs business setup that is not available for this project. Do not delete the Stripe code.
 
 1. Create or open a Stripe account.
 2. Use Stripe test mode for MVP billing verification.
@@ -436,6 +482,8 @@ API checks:
 - `GET /api/providers/sample-vizag-home-care`
 - `POST /api/enquiries`
 - `POST /api/provider/billing/checkout`
+- `POST /api/provider/billing/razorpay-checkout`
+- `POST /api/webhooks/razorpay`
 
 Expected:
 
@@ -447,8 +495,8 @@ Expected:
 - Area/suburb filters are scoped to the selected city.
 - Existing provider profile URLs still work.
 - Protected pages redirect to sign-in when signed out.
-- Billing page opens without Stripe keys when signed in.
-- Upgrade attempt without Stripe setup shows `Stripe billing is not configured.`
+- Billing page opens without Razorpay keys when signed in.
+- Upgrade attempt without Razorpay setup shows `Razorpay billing is not configured.`
 - Free providers see `Analytics are available on Standard and Premium plans.`
 - Logo upload without the bucket shows `Provider logo storage is not configured yet.`
 
@@ -475,6 +523,12 @@ STRIPE_SECRET_KEY
 STRIPE_WEBHOOK_SECRET
 STRIPE_STANDARD_PRICE_ID
 STRIPE_PREMIUM_PRICE_ID
+RAZORPAY_KEY_ID
+RAZORPAY_KEY_SECRET
+RAZORPAY_WEBHOOK_SECRET
+RAZORPAY_STANDARD_PLAN_ID
+RAZORPAY_PREMIUM_PLAN_ID
+NEXT_PUBLIC_RAZORPAY_KEY_ID
 RESEND_API_KEY
 RESEND_FROM_EMAIL
 PLATFORM_ADMIN_EMAIL
@@ -493,9 +547,20 @@ NEXT_PUBLIC_APP_URL
 https://your-vercel-domain/api/webhooks/stripe
 ```
 
+8. Add Razorpay webhook endpoint:
+
+```text
+https://your-vercel-domain/api/webhooks/razorpay
+```
+
 ## Known Limitations
 
-- Stripe is not tested until test or live keys are added.
+- Razorpay is not tested until test keys, test plans, and webhook secret are added.
+- Razorpay billing must stay in test mode until production readiness is approved.
+- Razorpay subscription/customer/payment IDs are not stored in the current schema; `listing_tier` is updated from signed webhook metadata.
+- Razorpay subscriptions are currently created for 12 billing cycles.
+- Stripe India setup is paused/future because onboarding is invite-based.
+- Stripe is not active for India MVP billing, but the Stripe code remains for future/global support.
 - Resend is not tested until an API key and sender email are configured.
 - Twilio WhatsApp is not tested until sandbox or production WhatsApp is configured.
 - Current data includes sample/demo providers only.

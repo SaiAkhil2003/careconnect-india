@@ -7,6 +7,7 @@ export type ListingPlan = {
   monthlyPrice: number;
   features: string[];
   stripePriceEnvKey: string | null;
+  razorpayPlanEnvKey: string | null;
   leadDeliveryDescription: string;
   searchPriority: number;
 };
@@ -23,6 +24,7 @@ export const LISTING_PLANS = {
       "Leads stored in provider dashboard",
     ],
     stripePriceEnvKey: null,
+    razorpayPlanEnvKey: null,
     leadDeliveryDescription: "Leads are stored in your dashboard only.",
     searchPriority: 1,
   },
@@ -37,6 +39,7 @@ export const LISTING_PLANS = {
       "Basic analytics included",
     ],
     stripePriceEnvKey: "STRIPE_STANDARD_PRICE_ID",
+    razorpayPlanEnvKey: "RAZORPAY_STANDARD_PLAN_ID",
     leadDeliveryDescription: "Email lead alerts are enabled when configured.",
     searchPriority: 2,
   },
@@ -53,6 +56,7 @@ export const LISTING_PLANS = {
       "Basic analytics included",
     ],
     stripePriceEnvKey: "STRIPE_PREMIUM_PRICE_ID",
+    razorpayPlanEnvKey: "RAZORPAY_PREMIUM_PLAN_ID",
     leadDeliveryDescription:
       "Email and WhatsApp lead alerts are enabled when configured.",
     searchPriority: 3,

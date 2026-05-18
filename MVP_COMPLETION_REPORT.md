@@ -4,7 +4,7 @@
 
 CareConnect India MVP v1.2 is an aged care provider discovery platform aligned to the final pan-India city-aware brief. Families select or auto-detect an active city first, then search city-scoped providers by service, area/suburb, language, verified status, and listing tier. Providers register under one active city. City activation, provider approval, and verification remain manual through Supabase Studio.
 
-The MVP supports Stripe, Resend, and Twilio WhatsApp foundations, but local integrations can remain unconfigured. Current data includes sample/demo providers for UI testing, search testing, city activation demos, and stakeholder review only. Real launch requires production credentials, storage setup, staging QA, manual provider collection, consent, verification, Supabase admin approval, at least 2 active cities, 50+ verified real providers, and verified provider onboarding city by city.
+The MVP supports Razorpay for active India billing, keeps Stripe as a future/global billing foundation, and includes Resend and Twilio WhatsApp foundations. Local integrations can remain unconfigured. Current data includes sample/demo providers for UI testing, search testing, city activation demos, and stakeholder review only. Real launch requires production credentials, storage setup, staging QA, manual provider collection, consent, verification, Supabase admin approval, at least 2 active cities, 50+ verified real providers, and verified provider onboarding city by city.
 
 ## Developer Brief Compliance Matrix
 
@@ -30,7 +30,8 @@ The MVP supports Stripe, Resend, and Twilio WhatsApp foundations, but local inte
 | Free listing plan | Complete | Search and dashboard-only leads supported. |
 | Standard listing plan | Complete | Priority, email lead alert foundation, analytics, logo, verified eligibility. |
 | Premium listing plan | Complete | Highest priority, highlighted search card, email and WhatsApp foundation, analytics, logo, verified eligibility. |
-| Stripe billing foundation | Complete | Checkout and webhook APIs implemented and hardened for test-mode validation. Requires Stripe setup. |
+| Razorpay India billing foundation | Complete | Subscription checkout and webhook APIs implemented for test-mode validation. Requires Razorpay setup. |
+| Stripe billing foundation | Complete | Checkout and webhook APIs kept for future/global support. Stripe India setup is paused. |
 | Resend email lead delivery | Complete | Family acknowledgement, Standard/Premium provider lead email, admin copy, safe skips, and non-blocking failures implemented. Requires Resend setup. |
 | Twilio WhatsApp lead delivery | Complete | Premium-only Twilio WhatsApp provider lead alerts implemented with demo/fake-recipient safety. Requires Twilio setup. |
 | No online booking | Complete | Intentionally excluded. |
@@ -116,10 +117,16 @@ Billing foundation:
 
 - Plan definitions
 - Billing page
-- Stripe Checkout API
-- Stripe webhook API
+- Razorpay subscription checkout API
+- Razorpay webhook API
+- Stripe Checkout API kept for future/global billing
+- Stripe webhook API kept for future/global billing
 - Clean missing-configuration handling
-- Test-mode billing workflow documented in `docs/STRIPE_BILLING_TESTING.md`
+- Razorpay test-mode billing workflow documented in `docs/RAZORPAY_BILLING_TESTING.md`
+- Stripe future/global billing workflow documented in `docs/STRIPE_BILLING_TESTING.md`
+- Razorpay webhooks update `listing_tier` from signed subscription metadata without changing `is_active` or `is_verified`
+- Razorpay cancelled, completed, halted, or paused subscription events downgrade providers to Free
+- Razorpay subscription/customer/payment IDs are not stored in the current schema
 - Stripe webhooks update `listing_tier`, `stripe_customer_id`, and `stripe_subscription_id` without changing `is_active` or `is_verified`
 - Deleted subscriptions downgrade providers to Free and clear `stripe_subscription_id` while retaining `stripe_customer_id`
 
@@ -205,9 +212,10 @@ Per launch city, target 10 home care providers, 5 senior living or assisted livi
 - Onboard 50+ verified real providers before public launch.
 - Verify provider data quality, consent, and contact details.
 - Use source tracking, verification scripts, consent wording, and the import checklist before publishing real providers.
-- Create Stripe test-mode products, prices, and webhook.
-- Add Stripe environment variables in Vercel.
-- Run Stripe test-mode Standard and Premium checkout validation.
+- Create Razorpay test-mode Standard and Premium subscription plans and webhook.
+- Add Razorpay environment variables in Vercel.
+- Run Razorpay test-mode Standard and Premium checkout validation.
+- Keep Stripe code available, but leave Stripe India billing paused until onboarding is practical.
 - Configure Resend API key, verified sender/domain, and production DNS records.
 - Configure Twilio WhatsApp Sandbox, join the receiving phone to the sandbox, or configure a production WhatsApp sender.
 - Create Supabase Storage bucket `provider-logos`.
@@ -245,8 +253,10 @@ Launch readiness:
 - Onboard and approve 50+ verified real providers.
 - Approve verified real providers city by city.
 - Set verified badges only for eligible Standard/Premium providers unless founder-approved.
-- Configure Stripe Standard and Premium recurring prices.
-- Configure Stripe webhook endpoint:
+- Configure Razorpay Standard and Premium recurring plans.
+- Configure Razorpay webhook endpoint:
+  - `https://your-vercel-domain/api/webhooks/razorpay`
+- Keep Stripe Standard and Premium recurring prices/webhook as future/global setup only:
   - `https://your-vercel-domain/api/webhooks/stripe`
 - Configure Resend sender and test delivery.
 - Configure Twilio WhatsApp sender and test delivery with one controlled Premium provider number.

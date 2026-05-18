@@ -1,5 +1,7 @@
 # Stripe Billing Testing
 
+Stripe is paused/future for India MVP billing because Stripe India onboarding is invite-based. Keep this Stripe code and documentation for future/global payment support. The active India MVP billing path is Razorpay; see `docs/RAZORPAY_BILLING_TESTING.md`.
+
 Use these checks before enabling paid provider plans for public use. Use Stripe test mode only. Do not use real cards or live Stripe charges for MVP billing verification.
 
 ## Stripe Setup

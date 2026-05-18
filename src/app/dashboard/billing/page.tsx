@@ -93,7 +93,8 @@ export default async function DashboardBillingPage({
             Billing
           </h1>
           <p className="mt-4 text-sm leading-6 text-neutral-700">
-            Manage your CareConnect India listing plan.
+            Manage your CareConnect India listing plan. India MVP billing uses
+            Razorpay.
           </p>
         </div>
         <Link className="btn-secondary w-full sm:w-auto" href="/dashboard">
